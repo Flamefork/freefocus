@@ -1,0 +1,10 @@
+{
+  "name": "freefocus",
+  "version": "0.1.0",
+  "main": "dist/jquery.freefocus.js",
+  "dependencies": {},
+  "devDependencies": {
+    "jquery": "~2.0.3",
+    "jasmine-jquery": "~1.5.8"
+  }
+}
