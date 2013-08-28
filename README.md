@@ -21,4 +21,4 @@ jQuery(function($) {
 </script>
 ```
 
-## [Annotated source](http://flamefork.github.is/freefocus/)
+## [Annotated source](http://flamefork.github.io/freefocus/freefocus.html)

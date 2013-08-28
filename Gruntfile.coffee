@@ -26,6 +26,17 @@ module.exports = (grunt) ->
         files:
           "dist/jquery.freefocus.min.js": ["dist/jquery.freefocus.js"]
 
+    docco:
+      docs:
+        src: ['src/*.coffee']
+        options:
+          output: 'docs'
+
+    "gh-pages":
+      options:
+        base: "docs"
+      src: ["**"]
+
   grunt.registerTask "test", [
     "coffeelint",
     "karma:continuos"
@@ -41,4 +52,9 @@ module.exports = (grunt) ->
     "coffeelint",
     "karma:check",
     "build"
+  ]
+
+  grunt.registerTask "update-docs", [
+    "docco",
+    "gh-pages"
   ]
