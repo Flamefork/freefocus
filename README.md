@@ -6,8 +6,8 @@ Focus navigation using arrow keys
 
 Download the [production version][min] or the [development version][max].
 
-[min]: https://raw.github.com/Flamefork/jquery-freefocus/master/dist/jquery.freefocus.min.js
-[max]: https://raw.github.com/Flamefork/jquery-freefocus/master/dist/jquery.freefocus.js
+[min]: https://raw.github.com/Flamefork/freefocus/master/dist/jquery.freefocus.min.js
+[max]: https://raw.github.com/Flamefork/freefocus/master/dist/jquery.freefocus.js
 
 In your web page:
 
