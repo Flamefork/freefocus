@@ -1,0 +1,168 @@
+<!DOCTYPE html>  <html> <head>   <title>freefocus.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               freefocus.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>Copyright (c) 2013 Ilia Ablamonov. Licensed under the MIT license.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">$ = </span><span class="nx">jQuery</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h3>$.freefocus({options...}, {move_options...})</h3>
+
+<p>Set up keyboard navigation.</p>
+
+<p>Options:</p>
+
+<ul>
+<li><code>focusables_selector</code> - selector for keyboard navigation targets. default: <code>'[tabindex]'</code></li>
+<li><code>focused_selector</code> - selector for currently focused (or active) element. default: <code>':focus'</code></li>
+<li><code>hover_focus</code> - focus target elements on mouse enter. default: <code>false</code></li>
+</ul>
+
+<p>Move options are paseed to <a href="#section-3"><code>$.fn.freefocus</code></a></p>
+
+<p>Usage:
+<code>
+$.freefocus({hover_focus: true})
+</code></p>
+
+<h3>$.freefocus('remove')</h3>
+
+<p>Remove previously set keyboard navigation.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">$.freefocus = </span><span class="nf">(setup_options, move_options) -&gt;</span>
+  <span class="k">if</span> <span class="nx">setup_options</span> <span class="o">==</span> <span class="s">&#39;remove&#39;</span>
+    <span class="nx">remove_handlers</span><span class="p">()</span>
+    <span class="k">return</span>
+
+  <span class="nv">setup_options = </span><span class="nx">$</span><span class="p">.</span><span class="nx">extend</span><span class="p">({},</span> <span class="nx">$</span><span class="p">.</span><span class="nx">freefocus</span><span class="p">.</span><span class="nx">setup_options</span><span class="p">,</span> <span class="nx">setup_options</span><span class="p">)</span>
+
+  <span class="nx">add_handler</span> <span class="s">&#39;keydown&#39;</span><span class="p">,</span> <span class="nf">(event) -&gt;</span>
+    <span class="nv">move = </span><span class="nx">move_keys</span><span class="p">[</span><span class="nx">event</span><span class="p">.</span><span class="nx">which</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nx">unless</span> <span class="nx">move</span>
+    <span class="nv">options = </span><span class="nx">$</span><span class="p">.</span><span class="nx">extend</span> <span class="p">{},</span> <span class="nx">$</span><span class="p">.</span><span class="nx">freefocus</span><span class="p">.</span><span class="nx">move_options</span><span class="p">,</span> <span class="nx">move_options</span><span class="p">,</span>
+      <span class="nv">move: </span><span class="nx">move</span><span class="p">,</span>
+      <span class="nv">targets: </span><span class="nx">$</span><span class="p">(</span><span class="nx">setup_options</span><span class="p">.</span><span class="nx">focusables_selector</span><span class="p">)</span>
+    <span class="nx">$</span><span class="p">(</span><span class="nx">setup_options</span><span class="p">.</span><span class="nx">focused_selector</span><span class="p">).</span><span class="nx">freefocus</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+
+  <span class="k">if</span> <span class="nx">setup_options</span><span class="p">.</span><span class="nx">hover_focus</span>
+    <span class="nx">add_handler</span> <span class="s">&#39;mouseenter&#39;</span><span class="p">,</span> <span class="nx">setup_options</span><span class="p">.</span><span class="nx">focusables_selector</span><span class="p">,</span> <span class="o">-&gt;</span>
+      <span class="nx">$</span><span class="p">(</span><span class="nx">@</span><span class="p">).</span><span class="nx">trigger</span><span class="p">(</span><span class="nx">move_options</span><span class="o">?</span><span class="p">.</span><span class="nx">trigger</span> <span class="o">||</span> <span class="nx">$</span><span class="p">.</span><span class="nx">freefocus</span><span class="p">.</span><span class="nx">move_options</span><span class="p">.</span><span class="nx">trigger</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <h3>.freefocus({move_options...})</h3>
+
+<p>Move "focus" from active element to one of the targets by triggering specified event.</p>
+
+<p>Options:</p>
+
+<ul>
+<li><code>move</code> - move direction: <code>left</code> | <code>right</code> | <code>up</code> | <code>down</code>. no default</li>
+<li><code>targets</code> - jQuery object containing "focusable" elements. no default</li>
+<li><code>debug</code> - print weighting information over targets. default: <code>false</code></li>
+<li><code>trigger</code> - event to trigger on selected target. default: <code>'focus'</code></li>
+<li><p><code>weight_fn</code> - function to determine the best match in specified direction.
+Arguments:</p>
+
+<ul><li><code>from</code> - active element and its position summary: <code>[element, {width, height, top, left, center: {x, y}}]</code></li>
+<li><code>to</code> - possible target and its position summary</li>
+<li><code>move</code> - move direction</li>
+<li><code>distance</code> - distance between centers of <code>from</code> and <code>to</code> elements</li>
+<li><code>angle</code> - angle between the move direction and direction to <code>to</code> element</li></ul>
+
+<p>Function should return either <code>true</code> (exact match), <code>false</code> (no match)
+or "weight" of the possible target.
+Target with lowest weight is the best match.
+Default: <code>$.freefocus.weight_fn</code></p></li>
+</ul>
+
+<p>Usage:
+<code>
+$(':focus').freefocus({move: 'right', targets: $('[tabindex]')})
+</code></p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">$.fn.freefocus = </span><span class="nf">(options) -&gt;</span>
+  <span class="nv">options = </span><span class="nx">$</span><span class="p">.</span><span class="nx">extend</span><span class="p">({},</span> <span class="nx">$</span><span class="p">.</span><span class="nx">freefocus</span><span class="p">.</span><span class="nx">move_options</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+  <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;Unknown move direction &#39;</span><span class="si">#{</span><span class="nx">options</span><span class="p">.</span><span class="nx">move</span><span class="si">}</span><span class="s">&#39;&quot;</span> <span class="nx">unless</span> <span class="nx">angles</span><span class="p">[</span><span class="nx">options</span><span class="p">.</span><span class="nx">move</span><span class="p">]</span><span class="o">?</span>
+  <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;Argument targets should be a jQuery object&quot;</span> <span class="nx">unless</span> <span class="nx">options</span><span class="p">.</span><span class="nx">targets</span> <span class="k">instanceof</span> <span class="nx">$</span>
+  <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;Can&#39;t move from multiple elements&quot;</span> <span class="k">if</span> <span class="nx">@size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span>
+  <span class="k">return</span> <span class="nx">unless</span> <span class="nx">@size</span><span class="p">()</span> <span class="c1"># It&#39;s useful to be silent here</span>
+
+  <span class="nv">to = </span><span class="nx">target_with_min_weight</span><span class="p">(</span><span class="nx">@get</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="nx">options</span><span class="p">)</span>
+  <span class="k">return</span> <span class="nx">unless</span> <span class="nx">to</span> <span class="c1"># It&#39;s useful to be silent here</span>
+
+  <span class="nx">$</span><span class="p">(</span><span class="nx">to</span><span class="p">).</span><span class="nx">trigger</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">trigger</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Defaults:</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">$.freefocus.weight_fn = </span><span class="nf">({distance, angle}) -&gt;</span>
+  <span class="k">if</span> <span class="nx">angle</span> <span class="o">&gt;</span> <span class="mi">89</span>
+    <span class="kc">false</span>
+  <span class="k">else</span>
+    <span class="mi">4</span> <span class="o">*</span> <span class="nx">angle</span> <span class="o">+</span> <span class="nx">distance</span>
+
+<span class="nv">$.freefocus.move_options =</span>
+  <span class="nv">trigger: </span><span class="s">&#39;focus&#39;</span>
+  <span class="nv">weight_fn: </span><span class="nx">$</span><span class="p">.</span><span class="nx">freefocus</span><span class="p">.</span><span class="nx">weight_fn</span>
+  <span class="nv">debug: </span><span class="kc">false</span>
+
+<span class="nv">$.freefocus.setup_options =</span>
+  <span class="nv">focusables_selector: </span><span class="s">&#39;[tabindex]&#39;</span>
+  <span class="nv">focused_selector: </span><span class="s">&#39;:focus&#39;</span>
+  <span class="nv">hover_focus: </span><span class="kc">false</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>Calculations:</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">angles =</span>
+  <span class="nv">left: </span> <span class="nb">Math</span><span class="p">.</span><span class="nx">atan2</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+  <span class="nv">up: </span>   <span class="nb">Math</span><span class="p">.</span><span class="nx">atan2</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">)</span>
+  <span class="nv">right: </span><span class="nb">Math</span><span class="p">.</span><span class="nx">atan2</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">)</span>
+  <span class="nv">down: </span> <span class="nb">Math</span><span class="p">.</span><span class="nx">atan2</span><span class="p">(</span> <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">)</span>
+
+<span class="nv">move_keys =</span>
+  <span class="mi">37</span><span class="o">:</span> <span class="s">&#39;left&#39;</span>
+  <span class="mi">38</span><span class="o">:</span> <span class="s">&#39;up&#39;</span>
+  <span class="mi">39</span><span class="o">:</span> <span class="s">&#39;right&#39;</span>
+  <span class="mi">40</span><span class="o">:</span> <span class="s">&#39;down&#39;</span>
+
+<span class="nv">element_info = </span><span class="nf">(element) -&gt;</span>
+  <span class="nv">$element = </span><span class="nx">$</span><span class="p">(</span><span class="nx">element</span><span class="p">)</span>
+  <span class="nv">result = </span><span class="nx">$element</span><span class="p">.</span><span class="nx">offset</span><span class="p">()</span>
+  <span class="nv">result.width  = </span><span class="nx">$element</span><span class="p">.</span><span class="nx">width</span><span class="p">()</span>
+  <span class="nv">result.height = </span><span class="nx">$element</span><span class="p">.</span><span class="nx">height</span><span class="p">()</span>
+  <span class="nv">result.center =</span>
+    <span class="nv">x: </span><span class="nx">result</span><span class="p">.</span><span class="nx">left</span> <span class="o">+</span> <span class="nx">result</span><span class="p">.</span><span class="nx">width</span>  <span class="o">/</span> <span class="mi">2</span>
+    <span class="nv">y: </span><span class="nx">result</span><span class="p">.</span><span class="nx">top</span>  <span class="o">+</span> <span class="nx">result</span><span class="p">.</span><span class="nx">height</span> <span class="o">/</span> <span class="mi">2</span>
+  <span class="nx">result</span>
+
+<span class="nv">distance_angle = </span><span class="nf">(from, to, move) -&gt;</span>
+  <span class="nv">dx = </span><span class="nx">to</span><span class="p">.</span><span class="nx">x</span> <span class="o">-</span> <span class="nx">from</span><span class="p">.</span><span class="nx">x</span>
+  <span class="nv">dy = </span><span class="nx">to</span><span class="p">.</span><span class="nx">y</span> <span class="o">-</span> <span class="nx">from</span><span class="p">.</span><span class="nx">y</span>
+  <span class="nv">distance = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">sqrt</span><span class="p">(</span><span class="nx">dx</span> <span class="o">*</span> <span class="nx">dx</span> <span class="o">+</span> <span class="nx">dy</span> <span class="o">*</span> <span class="nx">dy</span><span class="p">)</span>
+  <span class="nv">angle = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">abs</span><span class="p">(</span><span class="nx">angles</span><span class="p">[</span><span class="nx">move</span><span class="p">]</span> <span class="o">-</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">atan2</span><span class="p">(</span><span class="nx">dy</span><span class="p">,</span> <span class="nx">dx</span><span class="p">))</span> <span class="o">/</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">PI</span> <span class="o">*</span> <span class="mi">180</span>
+  <span class="nv">angle = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">abs</span><span class="p">(</span><span class="nx">angle</span> <span class="o">-</span> <span class="mi">360</span><span class="p">)</span> <span class="k">if</span> <span class="nx">angle</span> <span class="o">&gt;</span> <span class="mi">180</span>
+  <span class="p">[</span><span class="nx">distance</span><span class="p">,</span> <span class="nx">angle</span><span class="p">]</span>
+
+<span class="nv">target_with_min_weight = </span><span class="nf">(from, {targets, move, weight_fn, debug}) -&gt;</span>
+  <span class="nv">from_info = </span><span class="nx">element_info</span><span class="p">(</span><span class="nx">from</span><span class="p">)</span>
+  <span class="nv">to = </span><span class="kc">null</span>
+  <span class="nv">min_weight = </span><span class="kc">null</span>
+  <span class="nx">targets</span><span class="p">.</span><span class="nx">each</span> <span class="o">-&gt;</span>
+    <span class="k">return</span> <span class="k">if</span> <span class="nx">@</span> <span class="o">==</span> <span class="nx">from</span>
+    <span class="nv">target_info = </span><span class="nx">element_info</span><span class="p">(</span><span class="nx">@</span><span class="p">)</span>
+    <span class="p">[</span><span class="nx">distance</span><span class="p">,</span> <span class="nx">angle</span><span class="p">]</span> <span class="o">=</span> <span class="nx">distance_angle</span><span class="p">(</span><span class="nx">from_info</span><span class="p">.</span><span class="nx">center</span><span class="p">,</span> <span class="nx">target_info</span><span class="p">.</span><span class="nx">center</span><span class="p">,</span> <span class="nx">move</span><span class="p">)</span>
+
+    <span class="nv">weight = </span><span class="nx">weight_fn</span>
+      <span class="nv">from: </span><span class="p">[</span><span class="nx">from</span><span class="p">,</span> <span class="nx">from_info</span><span class="p">]</span>
+      <span class="nv">to: </span><span class="p">[</span><span class="nx">@</span><span class="p">,</span> <span class="nx">target_info</span><span class="p">]</span>
+      <span class="nv">move: </span><span class="nx">move</span>
+      <span class="nv">distance: </span><span class="nx">distance</span>
+      <span class="nv">angle: </span><span class="nx">angle</span>
+
+    <span class="nx">log_weights</span><span class="p">(</span><span class="nx">@</span><span class="p">,</span> <span class="nx">distance</span><span class="p">,</span> <span class="nx">angle</span><span class="p">,</span> <span class="nx">weight</span><span class="p">)</span> <span class="k">if</span> <span class="nx">debug</span>
+
+    <span class="k">if</span> <span class="nx">weight</span> <span class="o">is</span> <span class="kc">true</span> <span class="c1"># exact match</span>
+      <span class="nv">to = </span><span class="nx">@</span>
+      <span class="k">return</span> <span class="kc">false</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="nx">weight</span> <span class="o">is</span> <span class="kc">false</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>nothing</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">else</span> <span class="k">if</span> <span class="o">!</span><span class="nx">min_weight</span> <span class="o">||</span> <span class="nx">weight</span> <span class="o">&lt;</span> <span class="nx">min_weight</span>
+      <span class="nv">min_weight = </span><span class="nx">weight</span>
+      <span class="nv">to = </span><span class="nx">@</span>
+  <span class="nx">to</span>
+
+<span class="nv">log_weights = </span><span class="nf">(element, distance, angle, weight) -&gt;</span>
+  <span class="nx">$</span><span class="p">(</span><span class="s">&#39;span.weights&#39;</span><span class="p">,</span> <span class="nx">element</span><span class="p">).</span><span class="nx">remove</span><span class="p">()</span>
+  <span class="nx">$</span><span class="p">(</span><span class="nx">element</span><span class="p">).</span><span class="nx">append</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">    &lt;span class=&quot;weights&quot; style=&quot;position: absolute; left: 5px; top: 5px;</span>
+<span class="s">                                 font-size: 10px; font-family: monospace;</span>
+<span class="s">                                 color: </span><span class="err">#</span><span class="s">fff; text-shadow: 0 0 2px </span><span class="err">#</span><span class="s">000;&quot;&gt;</span>
+<span class="s">      d = </span><span class="si">#{</span><span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(</span><span class="nx">distance</span><span class="p">)</span><span class="si">}</span><span class="s">&lt;br&gt;</span>
+<span class="s">      a = </span><span class="si">#{</span><span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(</span><span class="nx">angle</span><span class="p">)</span><span class="si">}</span><span class="s">&lt;br&gt;</span>
+<span class="s">      w = </span><span class="si">#{</span><span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(</span><span class="nx">weight</span><span class="p">)</span> <span class="k">if</span> <span class="nx">weight</span><span class="si">}</span><span class="s"></span>
+<span class="s">    &lt;/pre&gt;</span>
+<span class="s">  &quot;&quot;&quot;</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>Event handlers:</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">event_handlers = </span><span class="p">[]</span>
+
+<span class="nv">add_handler = </span><span class="nf">(args...) -&gt;</span>
+  <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="kc">on</span><span class="p">(</span><span class="nx">args</span><span class="p">...)</span>
+  <span class="nx">event_handlers</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span>
+
+<span class="nv">remove_handlers = </span><span class="o">-&gt;</span>
+  <span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="kc">off</span><span class="p">(</span><span class="nx">args</span><span class="p">...)</span> <span class="k">for</span> <span class="nx">args</span> <span class="k">in</span> <span class="nx">event_handlers</span>
+  <span class="nv">event_handlers = </span><span class="p">[]</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
