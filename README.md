@@ -13,19 +13,12 @@ In your web page:
 
 ```html
 <script src="jquery.js"></script>
-<script src="dist/freefocus.min.js"></script>
+<script src="dist/jquery.freefocus.min.js"></script>
 <script>
 jQuery(function($) {
-  $.freefocus();
+  $.freefocus({hover_focus: true});
 });
 </script>
 ```
 
-## Documentation
-_(Coming soon)_
-
-## Examples
-_(Coming soon)_
-
-## Release History
-_(Nothing yet)_
+## [Annotated source](http://flamefork.github.is/freefocus/)

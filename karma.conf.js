@@ -10,6 +10,7 @@ files = [
   'bower_components/jquery/jquery.js',
   'bower_components/jasmine-jquery/lib/jasmine-jquery.js',
   'src/*.coffee',
+  'test/helpers.coffee',
   'test/*.coffee',
   {pattern: 'test/fixtures/*.html', included: false}
 ];
@@ -45,6 +46,8 @@ autoWatch = true;
 // - Safari (only Mac)
 // - PhantomJS
 // - IE (only Windows)
+
+//browsers = ['Chrome'];
 browsers = ['PhantomJS'];
 
 // If browser does not capture in given timeout [ms], kill it
