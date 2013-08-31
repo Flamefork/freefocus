@@ -12,7 +12,7 @@ $ = jQuery
 # - `focused_selector` - selector for currently focused (or active) element. default: `':focus'`
 # - `hover_focus` - focus target elements on mouse enter. default: `false`
 #
-# Move options are paseed to [`$.fn.freefocus`](#section-3)
+# Move options are passed to [`$.fn.freefocus`](#section-3)
 #
 # Usage:
 # ```
