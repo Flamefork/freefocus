@@ -1,6 +1,6 @@
-jasmine.getFixtures().fixturesPath = '/base/test/fixtures'
+jasmine.getFixtures().fixturesPath = '/base/test'
 
-beforeEach -> loadFixtures 'grid.html'
+beforeEach -> loadFixtures 'fixtures.html'
 
 describe "$.fn.freefocus", ->
   it "should move to straight nearby targets", ->

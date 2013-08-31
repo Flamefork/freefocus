@@ -16,9 +16,9 @@ module.exports = (grunt) ->
 
     karma:
       continuos:
-        configFile: "karma.conf.js"
+        configFile: "karma.conf.coffee"
       check:
-        configFile: "karma.conf.js"
+        configFile: "karma.conf.coffee"
         singleRun: true
 
     uglify:
