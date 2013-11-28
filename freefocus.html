@@ -47,6 +47,7 @@ $.freefocus({hoverFocus: true})
 <li><code>targets</code> - jQuery object containing "focusable" elements. no default</li>
 <li><code>debug</code> - print weighting information over targets. default: <code>false</code></li>
 <li><code>trigger</code> - event to trigger on selected target. default: <code>'focus'</code></li>
+<li><code>useNavProps</code> - respect <code>nav-*</code> directional focus navigation style properties</li>
 <li><p><code>weightFn</code> - function to determine the best match in specified direction.
 Arguments:</p>
 
@@ -72,7 +73,14 @@ $(':focus').freefocus({move: 'right', targets: $('[tabindex]')})
   <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;Can&#39;t move from multiple elements&quot;</span> <span class="k">if</span> <span class="nx">@size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span>
   <span class="k">return</span> <span class="k">unless</span> <span class="nx">@size</span><span class="p">()</span> <span class="c1"># It&#39;s useful to be silent here</span>
 
-  <span class="nv">to = </span><span class="nx">targetWithMinWeight</span><span class="p">(</span><span class="nx">@get</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="nx">options</span><span class="p">)</span>
+  <span class="nv">to = </span><span class="kc">null</span>
+  <span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">useNavProps</span>
+    <span class="nv">toSelector = </span><span class="nx">parseStyleString</span><span class="p">(</span><span class="nx">@attr</span><span class="p">(</span><span class="s">&#39;style&#39;</span><span class="p">)</span> <span class="o">||</span> <span class="s">&#39;&#39;</span><span class="p">)[</span><span class="s">&quot;nav-</span><span class="si">#{</span><span class="nx">options</span><span class="p">.</span><span class="nx">move</span><span class="si">}</span><span class="s">&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nx">toSelector</span><span class="o">?</span><span class="p">.</span><span class="nx">indexOf</span><span class="p">(</span><span class="s">&#39;#&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="c1"># CSS3 UI only defines #id value to be directive</span>
+      <span class="nv">to = </span><span class="nx">$</span><span class="p">(</span><span class="nx">toSelector</span><span class="p">).</span><span class="nx">get</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+  <span class="nx">to</span> <span class="o">||=</span> <span class="nx">targetWithMinWeight</span><span class="p">(</span><span class="nx">@get</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="nx">options</span><span class="p">)</span>
+
   <span class="k">return</span> <span class="k">unless</span> <span class="nx">to</span> <span class="c1"># It&#39;s useful to be silent here</span>
 
   <span class="nx">$</span><span class="p">(</span><span class="nx">to</span><span class="p">).</span><span class="nx">trigger</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">trigger</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Defaults:</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">$.freefocus.weightFn = </span><span class="nf">({distance, angle}) -&gt;</span>
@@ -85,6 +93,7 @@ $(':focus').freefocus({move: 'right', targets: $('[tabindex]')})
   <span class="nv">trigger: </span><span class="s">&#39;focus&#39;</span>
   <span class="nv">weightFn: </span><span class="nx">$</span><span class="p">.</span><span class="nx">freefocus</span><span class="p">.</span><span class="nx">weightFn</span>
   <span class="nv">debug: </span><span class="kc">false</span>
+  <span class="nv">useNavProps: </span><span class="kc">true</span>
 
 <span class="nv">$.freefocus.setupOptions =</span>
   <span class="nv">focusablesSelector: </span><span class="s">&#39;[tabindex]&#39;</span>
@@ -144,6 +153,13 @@ $(':focus').freefocus({move: 'right', targets: $('[tabindex]')})
       <span class="nv">minWeight = </span><span class="nx">weight</span>
       <span class="nv">to = </span><span class="nx">@</span>
   <span class="nx">to</span>
+
+<span class="nv">parseStyleString = </span><span class="nf">(style) -&gt;</span>
+  <span class="nv">result = </span><span class="p">{}</span>
+  <span class="k">for</span> <span class="nx">rule</span> <span class="k">in</span> <span class="nx">style</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s">&#39;;&#39;</span><span class="p">)</span>
+    <span class="p">[</span><span class="nx">k</span><span class="p">,</span> <span class="nx">v</span><span class="p">]</span> <span class="o">=</span> <span class="nx">rule</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">)</span>
+    <span class="nx">result</span><span class="p">[</span><span class="nx">k</span><span class="p">.</span><span class="nx">trim</span><span class="p">()]</span> <span class="o">=</span> <span class="nx">v</span><span class="p">.</span><span class="nx">trim</span><span class="p">()</span> <span class="k">if</span> <span class="nx">v</span>
+  <span class="nx">result</span>
 
 <span class="nv">logWeights = </span><span class="nf">(element, distance, angle, weight) -&gt;</span>
   <span class="nx">$</span><span class="p">(</span><span class="s">&#39;span.weights&#39;</span><span class="p">,</span> <span class="nx">element</span><span class="p">).</span><span class="nx">remove</span><span class="p">()</span>
