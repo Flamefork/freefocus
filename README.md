@@ -16,6 +16,8 @@ Just use HTML for UI and let FreeFocus navigate it "visually" — using position
 focusable elements on page. If user pressed "right", just move focus to focusable
 element placed to the right of the current focused one. It's that easy.
 
+It can be used as a polyfill for CSS3 UI `nav-*` directional focus navigation properties.
+
 ## Download
 
 - [Minified version](https://raw.github.com/Flamefork/freefocus/master/dist/jquery.freefocus.min.js)
@@ -61,6 +63,7 @@ Options:
 - `targets` - jQuery object containing "focusable" elements. no default
 - `debug` - print weighting information over targets. default: `false`
 - `trigger` - event to trigger on selected target. default: `'focus'`
+- `useNavProps` - respect `nav-*` directional focus navigation style properties
 - `weightFn` - function to determine the best match in specified direction. default: `$.freefocus.weightFn`
 
     `weightFn` arguments:
@@ -73,5 +76,6 @@ Options:
 
     Function should return either `true` (exact match), `false` (no match)
     or "weight" of the possible target.Target with lowest weight is the best match.
+
 
 ### [Annotated source](http://flamefork.github.io/freefocus/freefocus.html)

@@ -52,6 +52,7 @@ $.freefocus = (setupOptions, moveOptions) ->
 # - `targets` - jQuery object containing "focusable" elements. no default
 # - `debug` - print weighting information over targets. default: `false`
 # - `trigger` - event to trigger on selected target. default: `'focus'`
+# - `useNavProps` - respect `nav-*` directional focus navigation style properties
 # - `weightFn` - function to determine the best match in specified direction.
 #   Arguments:
 #    - `from` - active element and its position summary: `[element, {width, height, top, left, center: {x, y}}]`
@@ -77,7 +78,14 @@ $.fn.freefocus = (options) ->
   throw new Error "Can't move from multiple elements" if @size() > 1
   return unless @size() # It's useful to be silent here
 
-  to = targetWithMinWeight(@get(0), options)
+  to = null
+  if options.useNavProps
+    toSelector = parseStyleString(@attr('style') || '')["nav-#{options.move}"]
+    if toSelector?.indexOf('#') == 0 # CSS3 UI only defines #id value to be directive
+      to = $(toSelector).get(0)
+
+  to ||= targetWithMinWeight(@get(0), options)
+
   return unless to # It's useful to be silent here
 
   $(to).trigger(options.trigger)
@@ -94,6 +102,7 @@ $.freefocus.moveOptions =
   trigger: 'focus'
   weightFn: $.freefocus.weightFn
   debug: false
+  useNavProps: true
 
 $.freefocus.setupOptions =
   focusablesSelector: '[tabindex]'
@@ -159,6 +168,13 @@ targetWithMinWeight = (from, {targets, move, weightFn, debug}) ->
       minWeight = weight
       to = @
   to
+
+parseStyleString = (style) ->
+  result = {}
+  for rule in style.split(';')
+    [k, v] = rule.split(':')
+    result[k.trim()] = v.trim() if v
+  result
 
 logWeights = (element, distance, angle, weight) ->
   $('span.weights', element).remove()
