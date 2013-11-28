@@ -28,22 +28,22 @@ element placed to the right of the current focused one. It's that easy.
 <script src="dist/jquery.freefocus.min.js"></script>
 <script>
 $(function() {
-  $.freefocus({hover_focus: true});
+  $.freefocus({hoverFocus: true});
 });
 </script>
 ```
 
 ## Documentation
 
-### `$.freefocus({options...}, {move_options...})`
+### `$.freefocus({options...}, {moveOptions...})`
 
 Set up keyboard navigation.
 
 Options:
 
-- `focusables_selector` - selector for keyboard navigation targets. default: `'[tabindex]'`
-- `focused_selector` - selector for currently focused (or active) element. default: `':focus'`
-- `hover_focus` - focus target elements on mouse enter. default: `false`
+- `focusablesSelector` - selector for keyboard navigation targets. default: `'[tabindex]'`
+- `focusedSelector` - selector for currently focused (or active) element. default: `':focus'`
+- `hoverFocus` - focus target elements on mouse enter. default: `false`
 
 Move options are passed to [`$.fn.freefocus`](#fnfreefocusoptions)
 
@@ -61,9 +61,9 @@ Options:
 - `targets` - jQuery object containing "focusable" elements. no default
 - `debug` - print weighting information over targets. default: `false`
 - `trigger` - event to trigger on selected target. default: `'focus'`
-- `weight_fn` - function to determine the best match in specified direction. default: `$.freefocus.weight_fn`
+- `weightFn` - function to determine the best match in specified direction. default: `$.freefocus.weightFn`
 
-    `weight_fn` arguments:
+    `weightFn` arguments:
 
     - `from` - active element and its position summary: `[element, {width, height, top, left, center: {x, y}}]`
     - `to` - possible target and its position summary

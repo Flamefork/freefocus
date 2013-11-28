@@ -2,47 +2,47 @@
 
 $ = jQuery
 
-# ### $.freefocus({options...}, {move_options...})
+# ### $.freefocus({options...}, {moveOptions...})
 #
 # Set up keyboard navigation.
 #
 # Options:
 #
-# - `focusables_selector` - selector for keyboard navigation targets. default: `'[tabindex]'`
-# - `focused_selector` - selector for currently focused (or active) element. default: `':focus'`
-# - `hover_focus` - focus target elements on mouse enter. default: `false`
+# - `focusablesSelector` - selector for keyboard navigation targets. default: `'[tabindex]'`
+# - `focusedSelector` - selector for currently focused (or active) element. default: `':focus'`
+# - `hoverFocus` - focus target elements on mouse enter. default: `false`
 #
 # Move options are passed to [`$.fn.freefocus`](#section-3)
 #
 # Usage:
 # ```
-# $.freefocus({hover_focus: true})
+# $.freefocus({hoverFocus: true})
 # ```
 #
 # ### $.freefocus('remove')
 #
 # Remove previously set keyboard navigation.
 
-$.freefocus = (setup_options, move_options) ->
-  if setup_options == 'remove'
-    remove_handlers()
+$.freefocus = (setupOptions, moveOptions) ->
+  if setupOptions == 'remove'
+    removeHandlers()
     return
 
-  setup_options = $.extend({}, $.freefocus.setup_options, setup_options)
+  setupOptions = $.extend({}, $.freefocus.setupOptions, setupOptions)
 
-  add_handler 'keydown', (event) ->
-    move = move_keys[event.which]
+  addHandler 'keydown', (event) ->
+    move = moveKeys[event.which]
     return unless move
-    options = $.extend {}, $.freefocus.move_options, move_options,
+    options = $.extend {}, $.freefocus.moveOptions, moveOptions,
       move: move,
-      targets: $(setup_options.focusables_selector)
-    $(setup_options.focused_selector).freefocus(options)
+      targets: $(setupOptions.focusablesSelector)
+    $(setupOptions.focusedSelector).freefocus(options)
 
-  if setup_options.hover_focus
-    add_handler 'mouseenter', setup_options.focusables_selector, ->
-      $(@).trigger(move_options?.trigger || $.freefocus.move_options.trigger)
+  if setupOptions.hoverFocus
+    addHandler 'mouseenter', setupOptions.focusablesSelector, ->
+      $(@).trigger(moveOptions?.trigger || $.freefocus.moveOptions.trigger)
 
-# ### .freefocus({move_options...})
+# ### .freefocus({moveOptions...})
 #
 # Move "focus" from active element to one of the targets by triggering specified event.
 #
@@ -52,7 +52,7 @@ $.freefocus = (setup_options, move_options) ->
 # - `targets` - jQuery object containing "focusable" elements. no default
 # - `debug` - print weighting information over targets. default: `false`
 # - `trigger` - event to trigger on selected target. default: `'focus'`
-# - `weight_fn` - function to determine the best match in specified direction.
+# - `weightFn` - function to determine the best match in specified direction.
 #   Arguments:
 #    - `from` - active element and its position summary: `[element, {width, height, top, left, center: {x, y}}]`
 #    - `to` - possible target and its position summary
@@ -63,7 +63,7 @@ $.freefocus = (setup_options, move_options) ->
 #   Function should return either `true` (exact match), `false` (no match)
 #   or "weight" of the possible target.
 #   Target with lowest weight is the best match.
-#   Default: `$.freefocus.weight_fn`
+#   Default: `$.freefocus.weightFn`
 #
 # Usage:
 # ```
@@ -71,34 +71,34 @@ $.freefocus = (setup_options, move_options) ->
 # ```
 
 $.fn.freefocus = (options) ->
-  options = $.extend({}, $.freefocus.move_options, options)
+  options = $.extend({}, $.freefocus.moveOptions, options)
   throw new Error "Unknown move direction '#{options.move}'" unless angles[options.move]?
   throw new Error "Argument targets should be a jQuery object" unless options.targets instanceof $
   throw new Error "Can't move from multiple elements" if @size() > 1
   return unless @size() # It's useful to be silent here
 
-  to = target_with_min_weight(@get(0), options)
+  to = targetWithMinWeight(@get(0), options)
   return unless to # It's useful to be silent here
 
   $(to).trigger(options.trigger)
 
 # Defaults:
 
-$.freefocus.weight_fn = ({distance, angle}) ->
+$.freefocus.weightFn = ({distance, angle}) ->
   if angle > 89
     false
   else
     4 * angle + distance
 
-$.freefocus.move_options =
+$.freefocus.moveOptions =
   trigger: 'focus'
-  weight_fn: $.freefocus.weight_fn
+  weightFn: $.freefocus.weightFn
   debug: false
 
-$.freefocus.setup_options =
-  focusables_selector: '[tabindex]'
-  focused_selector: ':focus'
-  hover_focus: false
+$.freefocus.setupOptions =
+  focusablesSelector: '[tabindex]'
+  focusedSelector: ':focus'
+  hoverFocus: false
 
 # Calculations:
 
@@ -108,13 +108,13 @@ angles =
   right: Math.atan2( 0,  1)
   down:  Math.atan2( 1,  0)
 
-move_keys =
+moveKeys =
   37: 'left'
   38: 'up'
   39: 'right'
   40: 'down'
 
-element_info = (element) ->
+elementInfo = (element) ->
   $element = $(element)
   result = $element.offset()
   result.width  = $element.width()
@@ -124,7 +124,7 @@ element_info = (element) ->
     y: result.top  + result.height / 2
   result
 
-distance_angle = (from, to, move) ->
+distanceAngle = (from, to, move) ->
   dx = to.x - from.x
   dy = to.y - from.y
   distance = Math.sqrt(dx * dx + dy * dy)
@@ -132,35 +132,35 @@ distance_angle = (from, to, move) ->
   angle = Math.abs(angle - 360) if angle > 180
   [distance, angle]
 
-target_with_min_weight = (from, {targets, move, weight_fn, debug}) ->
-  from_info = element_info(from)
+targetWithMinWeight = (from, {targets, move, weightFn, debug}) ->
+  fromInfo = elementInfo(from)
   to = null
-  min_weight = null
+  minWeight = null
   targets.each ->
     return if @ == from
-    target_info = element_info(@)
-    [distance, angle] = distance_angle(from_info.center, target_info.center, move)
+    targetInfo = elementInfo(@)
+    [distance, angle] = distanceAngle(fromInfo.center, targetInfo.center, move)
 
-    weight = weight_fn
-      from: [from, from_info]
-      to: [@, target_info]
+    weight = weightFn
+      from: [from, fromInfo]
+      to: [@, targetInfo]
       move: move
       distance: distance
       angle: angle
 
-    log_weights(@, distance, angle, weight) if debug
+    logWeights(@, distance, angle, weight) if debug
 
     if weight is true # exact match
       to = @
       return false
     else if weight is false
       # nothing
-    else if !min_weight || weight < min_weight
-      min_weight = weight
+    else if !minWeight || weight < minWeight
+      minWeight = weight
       to = @
   to
 
-log_weights = (element, distance, angle, weight) ->
+logWeights = (element, distance, angle, weight) ->
   $('span.weights', element).remove()
   $(element).append """
     <span class="weights" style="position: absolute; left: 5px; top: 5px;
@@ -174,12 +174,12 @@ log_weights = (element, distance, angle, weight) ->
 
 # Event handlers:
 
-event_handlers = []
+eventHandlers = []
 
-add_handler = (args...) ->
+addHandler = (args...) ->
   $(document).on(args...)
-  event_handlers.push(args)
+  eventHandlers.push(args)
 
-remove_handlers = ->
-  $(document).off(args...) for args in event_handlers
-  event_handlers = []
+removeHandlers = ->
+  $(document).off(args...) for args in eventHandlers
+  eventHandlers = []

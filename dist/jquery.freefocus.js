@@ -1,37 +1,37 @@
 (function() {
-  var $, add_handler, angles, distance_angle, element_info, event_handlers, log_weights, move_keys, remove_handlers, target_with_min_weight,
+  var $, addHandler, angles, distanceAngle, elementInfo, eventHandlers, logWeights, moveKeys, removeHandlers, targetWithMinWeight,
     __slice = [].slice;
 
   $ = jQuery;
 
-  $.freefocus = function(setup_options, move_options) {
-    if (setup_options === 'remove') {
-      remove_handlers();
+  $.freefocus = function(setupOptions, moveOptions) {
+    if (setupOptions === 'remove') {
+      removeHandlers();
       return;
     }
-    setup_options = $.extend({}, $.freefocus.setup_options, setup_options);
-    add_handler('keydown', function(event) {
+    setupOptions = $.extend({}, $.freefocus.setupOptions, setupOptions);
+    addHandler('keydown', function(event) {
       var move, options;
-      move = move_keys[event.which];
+      move = moveKeys[event.which];
       if (!move) {
         return;
       }
-      options = $.extend({}, $.freefocus.move_options, move_options, {
+      options = $.extend({}, $.freefocus.moveOptions, moveOptions, {
         move: move,
-        targets: $(setup_options.focusables_selector)
+        targets: $(setupOptions.focusablesSelector)
       });
-      return $(setup_options.focused_selector).freefocus(options);
+      return $(setupOptions.focusedSelector).freefocus(options);
     });
-    if (setup_options.hover_focus) {
-      return add_handler('mouseenter', setup_options.focusables_selector, function() {
-        return $(this).trigger((move_options != null ? move_options.trigger : void 0) || $.freefocus.move_options.trigger);
+    if (setupOptions.hoverFocus) {
+      return addHandler('mouseenter', setupOptions.focusablesSelector, function() {
+        return $(this).trigger((moveOptions != null ? moveOptions.trigger : void 0) || $.freefocus.moveOptions.trigger);
       });
     }
   };
 
   $.fn.freefocus = function(options) {
     var to;
-    options = $.extend({}, $.freefocus.move_options, options);
+    options = $.extend({}, $.freefocus.moveOptions, options);
     if (angles[options.move] == null) {
       throw new Error("Unknown move direction '" + options.move + "'");
     }
@@ -44,14 +44,14 @@
     if (!this.size()) {
       return;
     }
-    to = target_with_min_weight(this.get(0), options);
+    to = targetWithMinWeight(this.get(0), options);
     if (!to) {
       return;
     }
     return $(to).trigger(options.trigger);
   };
 
-  $.freefocus.weight_fn = function(_arg) {
+  $.freefocus.weightFn = function(_arg) {
     var angle, distance;
     distance = _arg.distance, angle = _arg.angle;
     if (angle > 89) {
@@ -61,16 +61,16 @@
     }
   };
 
-  $.freefocus.move_options = {
+  $.freefocus.moveOptions = {
     trigger: 'focus',
-    weight_fn: $.freefocus.weight_fn,
+    weightFn: $.freefocus.weightFn,
     debug: false
   };
 
-  $.freefocus.setup_options = {
-    focusables_selector: '[tabindex]',
-    focused_selector: ':focus',
-    hover_focus: false
+  $.freefocus.setupOptions = {
+    focusablesSelector: '[tabindex]',
+    focusedSelector: ':focus',
+    hoverFocus: false
   };
 
   angles = {
@@ -80,14 +80,14 @@
     down: Math.atan2(1, 0)
   };
 
-  move_keys = {
+  moveKeys = {
     37: 'left',
     38: 'up',
     39: 'right',
     40: 'down'
   };
 
-  element_info = function(element) {
+  elementInfo = function(element) {
     var $element, result;
     $element = $(element);
     result = $element.offset();
@@ -100,7 +100,7 @@
     return result;
   };
 
-  distance_angle = function(from, to, move) {
+  distanceAngle = function(from, to, move) {
     var angle, distance, dx, dy;
     dx = to.x - from.x;
     dy = to.y - from.y;
@@ -112,63 +112,63 @@
     return [distance, angle];
   };
 
-  target_with_min_weight = function(from, _arg) {
-    var debug, from_info, min_weight, move, targets, to, weight_fn;
-    targets = _arg.targets, move = _arg.move, weight_fn = _arg.weight_fn, debug = _arg.debug;
-    from_info = element_info(from);
+  targetWithMinWeight = function(from, _arg) {
+    var debug, fromInfo, minWeight, move, targets, to, weightFn;
+    targets = _arg.targets, move = _arg.move, weightFn = _arg.weightFn, debug = _arg.debug;
+    fromInfo = elementInfo(from);
     to = null;
-    min_weight = null;
+    minWeight = null;
     targets.each(function() {
-      var angle, distance, target_info, weight, _ref;
+      var angle, distance, targetInfo, weight, _ref;
       if (this === from) {
         return;
       }
-      target_info = element_info(this);
-      _ref = distance_angle(from_info.center, target_info.center, move), distance = _ref[0], angle = _ref[1];
-      weight = weight_fn({
-        from: [from, from_info],
-        to: [this, target_info],
+      targetInfo = elementInfo(this);
+      _ref = distanceAngle(fromInfo.center, targetInfo.center, move), distance = _ref[0], angle = _ref[1];
+      weight = weightFn({
+        from: [from, fromInfo],
+        to: [this, targetInfo],
         move: move,
         distance: distance,
         angle: angle
       });
       if (debug) {
-        log_weights(this, distance, angle, weight);
+        logWeights(this, distance, angle, weight);
       }
       if (weight === true) {
         to = this;
         return false;
       } else if (weight === false) {
 
-      } else if (!min_weight || weight < min_weight) {
-        min_weight = weight;
+      } else if (!minWeight || weight < minWeight) {
+        minWeight = weight;
         return to = this;
       }
     });
     return to;
   };
 
-  log_weights = function(element, distance, angle, weight) {
+  logWeights = function(element, distance, angle, weight) {
     $('span.weights', element).remove();
     return $(element).append("<span class=\"weights\" style=\"position: absolute; left: 5px; top: 5px;\n                             font-size: 10px; font-family: monospace;\n                             color: #fff; text-shadow: 0 0 2px #000;\">\n  d = " + (Math.round(distance)) + "<br>\n  a = " + (Math.round(angle)) + "<br>\n  w = " + (weight ? Math.round(weight) : void 0) + "\n</pre>");
   };
 
-  event_handlers = [];
+  eventHandlers = [];
 
-  add_handler = function() {
+  addHandler = function() {
     var args, _ref;
     args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
     (_ref = $(document)).on.apply(_ref, args);
-    return event_handlers.push(args);
+    return eventHandlers.push(args);
   };
 
-  remove_handlers = function() {
+  removeHandlers = function() {
     var args, _i, _len, _ref;
-    for (_i = 0, _len = event_handlers.length; _i < _len; _i++) {
-      args = event_handlers[_i];
+    for (_i = 0, _len = eventHandlers.length; _i < _len; _i++) {
+      args = eventHandlers[_i];
       (_ref = $(document)).off.apply(_ref, args);
     }
-    return event_handlers = [];
+    return eventHandlers = [];
   };
 
 }).call(this);
