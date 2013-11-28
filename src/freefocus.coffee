@@ -52,7 +52,7 @@ $.freefocus = (setupOptions, moveOptions) ->
 # - `targets` - jQuery object containing "focusable" elements. no default
 # - `debug` - print weighting information over targets. default: `false`
 # - `trigger` - event to trigger on selected target. default: `'focus'`
-# - `useNavProps` - respect `nav-*` directional focus navigation style properties
+# - `useNavProps` - respect `nav-*` directional focus navigation style properties. default: `true`
 # - `weightFn` - function to determine the best match in specified direction.
 #   Arguments:
 #    - `from` - active element and its position summary: `[element, {width, height, top, left, center: {x, y}}]`
