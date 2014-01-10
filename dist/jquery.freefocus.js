@@ -1,5 +1,5 @@
 (function() {
-  var $, addHandler, angles, distanceAngle, elementInfo, eventHandlers, logWeights, moveKeys, removeHandlers, targetWithMinWeight,
+  var $, addHandler, angles, distanceAngle, elementInfo, eventHandlers, logWeights, moveKeys, parseStyleString, removeHandlers, targetWithMinWeight,
     __slice = [].slice;
 
   $ = jQuery;
@@ -30,7 +30,7 @@
   };
 
   $.fn.freefocus = function(options) {
-    var to;
+    var to, toSelector;
     options = $.extend({}, $.freefocus.moveOptions, options);
     if (angles[options.move] == null) {
       throw new Error("Unknown move direction '" + options.move + "'");
@@ -44,7 +44,14 @@
     if (!this.size()) {
       return;
     }
-    to = targetWithMinWeight(this.get(0), options);
+    to = null;
+    if (options.useNavProps) {
+      toSelector = parseStyleString(this.attr('style') || '')["nav-" + options.move];
+      if ((toSelector != null ? toSelector.indexOf('#') : void 0) === 0) {
+        to = $(toSelector).get(0);
+      }
+    }
+    to || (to = targetWithMinWeight(this.get(0), options));
     if (!to) {
       return;
     }
@@ -64,7 +71,8 @@
   $.freefocus.moveOptions = {
     trigger: 'focus',
     weightFn: $.freefocus.weightFn,
-    debug: false
+    debug: false,
+    useNavProps: true
   };
 
   $.freefocus.setupOptions = {
@@ -146,6 +154,20 @@
       }
     });
     return to;
+  };
+
+  parseStyleString = function(style) {
+    var k, result, rule, v, _i, _len, _ref, _ref1;
+    result = {};
+    _ref = style.split(';');
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      rule = _ref[_i];
+      _ref1 = rule.split(':'), k = _ref1[0], v = _ref1[1];
+      if (v) {
+        result[k.trim()] = v.trim();
+      }
+    }
+    return result;
   };
 
   logWeights = function(element, distance, angle, weight) {
