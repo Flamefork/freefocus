@@ -80,7 +80,8 @@ $.fn.freefocus = (options) ->
 
   to = null
   if options.useNavProps
-    toSelector = parseStyleString(@attr('style') || '')["nav-#{options.move}"]
+    toSelector = @get(0).style["nav#{options.move.charAt(0).toUpperCase()}#{options.move.slice(1)}"]
+    toSelector ||= parseStyleString(@attr('style') || '')["nav-#{options.move}"]
     if toSelector?.indexOf('#') == 0 # CSS3 UI only defines #id value to be directive
       to = $(toSelector).get(0)
 

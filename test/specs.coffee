@@ -47,6 +47,11 @@ describe "$.fn.freefocus", ->
     expectFocus '#p16', ->
       $('#p15').freefocus move: 'right', targets: $('.grid>div'), useNavProps: true
 
+  it "should move according to directional navigation style properties", ->
+    expectFocus '#p20', ->
+      $('#p19').get(0).style.navRight = '#p20'
+      $('#p19').freefocus move: 'right', targets: $('.grid>div'), useNavProps: true
+
 describe "$.freefocus", ->
   afterEach -> $.freefocus 'remove'
 

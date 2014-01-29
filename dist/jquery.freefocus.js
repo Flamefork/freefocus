@@ -46,7 +46,8 @@
     }
     to = null;
     if (options.useNavProps) {
-      toSelector = parseStyleString(this.attr('style') || '')["nav-" + options.move];
+      toSelector = this.get(0).style["nav" + (options.move.charAt(0).toUpperCase()) + (options.move.slice(1))];
+      toSelector || (toSelector = parseStyleString(this.attr('style') || '')["nav-" + options.move]);
       if ((toSelector != null ? toSelector.indexOf('#') : void 0) === 0) {
         to = $(toSelector).get(0);
       }
