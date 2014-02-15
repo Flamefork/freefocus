@@ -33,6 +33,7 @@ $.freefocus = (setupOptions, moveOptions) ->
   addHandler 'keydown', (event) ->
     move = moveKeys[event.which]
     return unless move
+    event.preventDefault()
     options = $.extend {}, $.freefocus.moveOptions, moveOptions,
       move: move,
       targets: $(setupOptions.focusablesSelector)

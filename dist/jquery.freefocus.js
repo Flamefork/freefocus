@@ -16,6 +16,7 @@
       if (!move) {
         return;
       }
+      event.preventDefault();
       options = $.extend({}, $.freefocus.moveOptions, moveOptions, {
         move: move,
         targets: $(setupOptions.focusablesSelector)
