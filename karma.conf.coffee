@@ -13,7 +13,7 @@ module.exports = (config) ->
       "bower_components/jquery/jquery.js",
       "bower_components/jasmine-jquery/lib/jasmine-jquery.js",
       "src/jquery.freefocus.js",
-      "test/helpers.coffee",
+      "test/helpers.js",
       "test/specs.coffee",
       {pattern: "test/fixtures.html", included: false}
     ]
