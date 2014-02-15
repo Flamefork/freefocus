@@ -20,14 +20,14 @@ It can be used as a polyfill for CSS3 UI `nav-*` directional focus navigation pr
 
 ## Download
 
-- [Minified version](https://raw.github.com/Flamefork/freefocus/master/dist/jquery.freefocus.min.js)
-- [Development version](https://raw.github.com/Flamefork/freefocus/master/dist/jquery.freefocus.js)
+- [Minified version](https://raw.github.com/Flamefork/freefocus/master/jquery.freefocus.min.js)
+- [Development version](https://raw.github.com/Flamefork/freefocus/master/jquery.freefocus.js)
 
 ## Getting Started
 
 ```html
 <script src="jquery.js"></script>
-<script src="dist/jquery.freefocus.min.js"></script>
+<script src="jquery.freefocus.min.js"></script>
 <script>
 $(function() {
   $.freefocus({hoverFocus: true});
@@ -76,6 +76,3 @@ Options:
 
     Function should return either `true` (exact match), `false` (no match)
     or "weight" of the possible target.Target with lowest weight is the best match.
-
-
-### [Annotated source](http://flamefork.github.io/freefocus/freefocus.html)

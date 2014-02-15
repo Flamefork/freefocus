@@ -2,18 +2,10 @@ module.exports = (grunt) ->
   require("matchdep").filterDev("grunt-*").forEach grunt.loadNpmTasks
 
   grunt.initConfig
-    clean:
-      all: [".tmp", "dist/*", "!dist/.git*"]
-
     jshint:
-      all: ["src/*.js", "test/*.js"]
+      all: ["*.js", "test/*.js"]
       options:
         jshintrc: '.jshintrc'
-
-    coffee:
-      dist:
-        files:
-          "dist/jquery.freefocus.js": ["src/*.coffee"]
 
     karma:
       continuos:
@@ -25,37 +17,15 @@ module.exports = (grunt) ->
     uglify:
       dist:
         files:
-          "dist/jquery.freefocus.min.js": ["dist/jquery.freefocus.js"]
-
-    docco:
-      docs:
-        src: ['src/*.coffee']
-        options:
-          output: 'docs'
-
-    "gh-pages":
-      options:
-        base: "docs"
-      src: ["**"]
+          "jquery.freefocus.min.js": ["jquery.freefocus.js"]
 
   grunt.registerTask "test", [
     "jshint",
     "karma:continuos"
   ]
 
-  grunt.registerTask "build", [
-    "clean",
-    "coffee",
-    "uglify"
-  ]
-
   grunt.registerTask "default", [
     "jshint",
     "karma:check",
-    "build"
-  ]
-
-  grunt.registerTask "update-docs", [
-    "docco",
-    "gh-pages"
+    "uglify"
   ]
