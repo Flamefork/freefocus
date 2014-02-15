@@ -7,6 +7,8 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 */
 
 (function($) {
+  'use strict';
+
   /*
 
   ### $.freefocus({options...}, {moveOptions...})
@@ -102,7 +104,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   $.fn.freefocus = function(options) {
     options = $.extend({}, $.freefocus.moveOptions, options);
 
-    if (angles[options.move] == null)
+    if (angles[options.move] === null)
       throw new Error("Unknown move direction '" + options.move + "'");
     if (!(options.targets instanceof $))
       throw new Error("Argument targets should be a jQuery object");
@@ -248,7 +250,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     style.split(';').forEach(function (rule) {
       var kv = rule.split(':');
       if (kv[1])
-        result[kv[0].trim()] = kv[1].trim()
+        result[kv[0].trim()] = kv[1].trim();
     });
     return result;
   }
@@ -273,7 +275,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     var span = '<span class="weights" style="' + style + '">' + content + '</span>';
 
     $('span.weights', element).remove();
-    $(element).append(html);
+    $(element).append(span);
   }
 
 

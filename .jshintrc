@@ -1,0 +1,21 @@
+{
+  "browser": true,
+  "strict": true,
+  "undef": true,
+  "noarg": true,
+  "immed": true,
+  "trailing": true,
+  "expr": true,
+  "supernew": true,
+  "sub": true,
+  "newcap": false,
+  "eqnull": true,
+
+  "globals": {
+    "jQuery": true,
+    "$": true,
+    "console": true,
+    "spyOnEvent": true,
+    "expect": true
+  }
+}

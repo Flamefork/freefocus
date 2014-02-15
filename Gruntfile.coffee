@@ -5,9 +5,10 @@ module.exports = (grunt) ->
     clean:
       all: [".tmp", "dist/*", "!dist/.git*"]
 
-    coffeelint:
-      all: ["src/*.coffee", "test/spec/*.coffee"]
-      options: JSON.parse(grunt.file.read("coffeelint.json"))
+    jshint:
+      all: ["src/*.js", "test/*.js"]
+      options:
+        jshintrc: '.jshintrc'
 
     coffee:
       dist:
@@ -38,7 +39,7 @@ module.exports = (grunt) ->
       src: ["**"]
 
   grunt.registerTask "test", [
-    "coffeelint",
+    "jshint",
     "karma:continuos"
   ]
 
@@ -49,7 +50,7 @@ module.exports = (grunt) ->
   ]
 
   grunt.registerTask "default", [
-    "coffeelint",
+    "jshint",
     "karma:check",
     "build"
   ]
