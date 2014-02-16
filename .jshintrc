@@ -14,6 +14,7 @@
   "globals": {
     "jQuery": true,
     "$": true,
+    "_": true,
     "console": true,
     "spyOnEvent": true,
     "expect": true

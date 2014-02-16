@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.3.0
+jQuery.Freefocus 0.3.1
 
 Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -20,6 +20,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   - `focusablesSelector` - selector for keyboard navigation targets. default: `'[tabindex]'`
   - `focusedSelector` - selector for currently focused (or active) element. default: `':focus'`
   - `hoverFocus` - focus target elements on mouse enter. default: `false`
+  - `throttle` - throttle key input for specified time (in milliseconds). Uses underscore.js. default: `false`
 
   Move options are passed to `$.fn.freefocus`
 
@@ -42,6 +43,18 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
     setupOptions = $.extend({}, $.freefocus.setupOptions, setupOptions);
 
+    var keyHandler = function(move) {
+      var options = $.extend({}, moveOptions, {
+        move: move,
+        targets: $(setupOptions.focusablesSelector)
+      });
+
+      $(setupOptions.focusedSelector).freefocus(options);
+    };
+
+    if (setupOptions.throttle !== false)
+      keyHandler = _.throttle(keyHandler, setupOptions.throttle);
+
     addHandler('keydown', function(event) {
       var move = $.freefocus.moveKeys[event.which];
 
@@ -50,12 +63,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
       event.preventDefault();
 
-      var options = $.extend({}, moveOptions, {
-        move: move,
-        targets: $(setupOptions.focusablesSelector)
-      });
-
-      $(setupOptions.focusedSelector).freefocus(options);
+      keyHandler(move);
     });
 
     if (setupOptions.hoverFocus) {
@@ -156,7 +164,8 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   $.freefocus.setupOptions = {
     focusablesSelector: '[tabindex]',
     focusedSelector: ':focus',
-    hoverFocus: false
+    hoverFocus: false,
+    throttle: false
   };
 
   $.freefocus.moveKeys = {

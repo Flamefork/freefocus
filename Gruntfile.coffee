@@ -3,7 +3,7 @@ module.exports = (grunt) ->
 
   grunt.initConfig
     jshint:
-      all: ["*.js", "test/*.js"]
+      all: ["jquery.freefocus.js", "test/*.js"]
       options:
         jshintrc: '.jshintrc'
 

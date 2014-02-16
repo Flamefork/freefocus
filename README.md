@@ -46,6 +46,7 @@ Options:
 - `focusablesSelector` - selector for keyboard navigation targets. default: `'[tabindex]'`
 - `focusedSelector` - selector for currently focused (or active) element. default: `':focus'`
 - `hoverFocus` - focus target elements on mouse enter. default: `false`
+- `throttle` - throttle key input for specified time (in milliseconds). Adds dependency on underscore.js if enabled. default: `false`
 
 Move options are passed to [`$.fn.freefocus`](#fnfreefocusoptions)
 
