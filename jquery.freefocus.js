@@ -21,7 +21,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   - `focusedSelector` - selector for currently focused (or active) element. default: `':focus'`
   - `hoverFocus` - focus target elements on mouse enter. default: `false`
 
-  Move options are passed to [`$.fn.freefocus`](#section-3)
+  Move options are passed to `$.fn.freefocus`
 
   Usage:
   ```
@@ -43,15 +43,14 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     setupOptions = $.extend({}, $.freefocus.setupOptions, setupOptions);
 
     addHandler('keydown', function(event) {
-      var move = moveKeys[event.which];
+      var move = $.freefocus.moveKeys[event.which];
 
       if (!move)
         return;
 
       event.preventDefault();
 
-      //todo try remove $.freefocus.moveOptions as it's merged later in $.fn.freefocus
-      var options = $.extend({}, $.freefocus.moveOptions, moveOptions, {
+      var options = $.extend({}, moveOptions, {
         move: move,
         targets: $(setupOptions.focusablesSelector)
       });
@@ -104,7 +103,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   $.fn.freefocus = function(options) {
     options = $.extend({}, $.freefocus.moveOptions, options);
 
-    if (angles[options.move] === null)
+    if ($.freefocus.angles[options.move] === null)
       throw new Error("Unknown move direction '" + options.move + "'");
     if (!(options.targets instanceof $))
       throw new Error("Argument targets should be a jQuery object");
@@ -160,26 +159,26 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     hoverFocus: false
   };
 
+  $.freefocus.moveKeys = {
+    37: 'left',
+    38: 'up',
+    39: 'right',
+    40: 'down'
+  };
 
-  /*
-
-  Calculations:
-
-  */
-
-  var angles = {
+  $.freefocus.angles = {
     left: Math.atan2(0, -1),
     up: Math.atan2(-1, 0),
     right: Math.atan2(0, 1),
     down: Math.atan2(1, 0)
   };
 
-  var moveKeys = {
-    37: 'left',
-    38: 'up',
-    39: 'right',
-    40: 'down'
-  };
+
+  /*
+
+  Calculations:
+
+  */
 
   function elementInfo(element) {
     var $el = $(element);
@@ -197,7 +196,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     var dx = to.x - from.x;
     var dy = to.y - from.y;
     var distance = Math.sqrt(dx * dx + dy * dy);
-    var angle = Math.abs(angles[move] - Math.atan2(dy, dx)) / Math.PI * 180;
+    var angle = Math.abs($.freefocus.angles[move] - Math.atan2(dy, dx)) / Math.PI * 180;
     if (angle > 180) {
       angle = Math.abs(angle - 360);
     }
