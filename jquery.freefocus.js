@@ -89,6 +89,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   - `debug` - print weighting information over targets. default: `false`
   - `trigger` - event to trigger on selected target. default: `'focus'`
   - `useNavProps` - respect `nav-*` directional focus navigation style properties. default: `true`
+  - `maxDistance` - maximum distance to element to still consider moving to it. default: `Infinity`
 
   Usage:
   ```
@@ -109,12 +110,18 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     if (!this.size())
       return this; // It's useful to be silent here
 
+    if (options.debug) {
+      clearDots();
+    }
+
+    updateFocusPoint(this, options.move);
+
     var to = targetFromNavProps(this, options) || targetWithMinDistance(this, options);
 
     if (!to)
       return this; // It's useful to be silent here
 
-    moveFocusPoint(to, options.move);
+    moveFocusPoint(to, options.move, options.debug);
 
     to.trigger(options.trigger);
 
@@ -132,7 +139,8 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     trigger: 'focus',
     weightFn: $.freefocus.weightFn,
     debug: false,
-    useNavProps: true
+    useNavProps: true,
+    maxDistance: Infinity
   };
 
   $.freefocus.setupOptions = {
@@ -168,11 +176,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     down: {}
   };
 
-  $.freefocus.focusPoint = {
-    element: null,
-    x: null,
-    y: null
-  };
+  $.freefocus.focusPoint = {};
 
 
   /*
@@ -206,17 +210,50 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     return result;
   }
 
+  function updateFocusPoint($el, direction) {
+    var box = elementBox($el);
+    var fp = $.freefocus.focusPoint;
+
+    // If the element was focused by freefocus,
+    // thus we have valid current focus point
+    if (!$el.is(fp.$el)) {
+      fp.$el = $el;
+      fp.box = {
+        x: (box.x2 - box.x1) / 2,
+        y: (box.y2 - box.y1) / 2
+      };
+    }
+    fp.updatedInDirection = coordsInDirection(boxCoordsToClient(fp.box, box), direction);
+    fp.updatedInDirection.fwd = boxInDirection(box, direction).fwd2;
+  }
+
+  function moveFocusPoint($el, direction, debug) {
+    var box = elementBox($el);
+    var fp = $.freefocus.focusPoint;
+
+    fp.$el = $el;
+
+    var boxInDir = boxInDirection(box, direction);
+    var movedInDirection = {
+      fwd: boxInDir.fwd1,
+      ort: bound(fp.updatedInDirection.ort, boxInDir.ort1, boxInDir.ort2)
+    };
+    fp.box = clientCoordsToBox(coordsFromDirection(movedInDirection, direction), box);
+
+    if (debug) {
+      putDot(coordsFromDirection(movedInDirection, direction), '#00f', 'entry focus point for ' + $el.html());
+    }
+  }
+
   function targetWithMinDistance($fromEl, options) {
+    var fromBox = boxInDirection(elementBox($fromEl), options.move);
+
     if (options.debug) {
-      putDot($.freefocus.focusPoint, 'red', 'focus point for ' + $fromEl.get(0).id);
+      putDot(coordsFromDirection($.freefocus.focusPoint.updatedInDirection, options.move), '#0f0', 'exit focus point for ' + $fromEl.html());
     }
 
-    var fromBox = boxToDirection(elementBox($fromEl), options.move);
-    var focusPoint = coordsInDirection(focusPointInDirection($fromEl, options.move, options.debug), options.move);
-
-
     var minDistance = Infinity;
-    var to = null;
+    var $resultEl = null;
 
     options.targets.each(function() {
       var $toEl = $(this);
@@ -225,111 +262,34 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
       if ($toEl.is($fromEl))
         return;
 
-      var toBox = boxToDirection(elementBox($toEl), options.move);
+      var toBox = boxInDirection(elementBox($toEl), options.move);
 
       // Skip elements that are not in the direction of movement
       if (toBox.fwd2 <= fromBox.fwd2)
         return;
 
-      var dist = distance(fromBox, toBox, focusPoint);
+      var dist = distance(fromBox, toBox);
 
-      if (dist < minDistance) {
-        to = $toEl;
+      if (dist < options.maxDistance && dist < minDistance) {
+        $resultEl = $toEl;
         minDistance = dist;
       }
     });
 
-    return to;
-  }
-
-  function focusPointInDirection($el, direction, debug) {
-    var box = elementBox($el);
-    var fp = $.freefocus.focusPoint;
-
-    // If the element was focused by freefocus,
-    // thus we have valid current focus point
-    if ($el.is(fp.$el)) {
-      // Move focus point to the exit edge for given direction
-      switch (direction) {
-        case 'left':
-          fp.x = box.x1; break;
-        case 'right':
-          fp.x = box.x2; break;
-        case 'up':
-          fp.y = box.y1; break;
-        case 'down':
-          fp.y = box.y2; break;
-      }
-    } else {
-      // Just pick the center of the element
-      fp = $.freefocus.focusPoint = {
-        element: $el,
-        x: Math.round(box.x1 + (box.x2 - box.x1) / 2),
-        y: Math.round(box.y1 + (box.y2 - box.y1) / 2)
-      };
-      if (debug) {
-        putDot(fp, 'blue', 'picked focus point for ' + $el.get(0).id);
-      }
+    if (options.debug && $resultEl) {
+      console.log("Distance from", $fromEl.get(0), "to", $resultEl.get(0), "is", minDistance);
     }
-    return fp;
+
+    return $resultEl;
   }
 
-  function moveFocusPoint($el, direction) {
-    var box = elementBox($el);
-    var fp = $.freefocus.focusPoint;
+  function distance(fromBox, toBox) {
+    var fromPoint = $.freefocus.focusPoint.updatedInDirection;
 
-    fp.$el = $el;
-
-    switch (direction) {
-      case 'left':
-        fp.x = box.x2; break;
-      case 'right':
-        fp.x = box.x1; break;
-      case 'up':
-        fp.y = box.y2; break;
-      case 'down':
-        fp.y = box.y1; break;
-    }
-  }
-
-  function elementBox($el) {
-    var offset = $el.offset();
-    return {
-      x1: offset.left,
-      y1: offset.top,
-      x2: offset.left + $el.outerWidth(),
-      y2: offset.top + $el.outerHeight()
+    var toPoint = {
+      fwd: toBox.fwd1,
+      ort: bound(fromPoint.ort, toBox.ort1, toBox.ort2)
     };
-  }
-
-  function boxToDirection(box, direction) {
-    switch (direction) {
-      case 'left':
-        return { fwd1: -box.x2, fwd2: -box.x1, ort1: -box.y2, ort2: -box.y1 };
-      case 'right':
-        return { fwd1:  box.x1, fwd2:  box.x2, ort1:  box.y1, ort2:  box.y2 };
-      case 'up':
-        return { fwd1: -box.y2, fwd2: -box.y1, ort1:  box.x1, ort2:  box.x2 };
-      case 'down':
-        return { fwd1:  box.y1, fwd2:  box.y2, ort1: -box.x2, ort2: -box.x1 };
-    }
-  }
-
-  function coordsInDirection(coords, direction) {
-    switch (direction) {
-      case 'left':
-        return { fwd: -coords.x, ort: -coords.y };
-      case 'right':
-        return { fwd:  coords.x, ort:  coords.y };
-      case 'down':
-        return { fwd:  coords.y, ort: -coords.x };
-      case 'up':
-        return { fwd: -coords.y, ort:  coords.x };
-    }
-  }
-
-  function distance(fromBox, toBox, fromPoint) {
-    var toPoint = possibleFocusPoint(fromPoint, toBox);
 
     var fwdDist = Math.abs(toPoint.fwd - fromPoint.fwd);
     var ortDist = Math.abs(toPoint.ort - fromPoint.ort);
@@ -371,18 +331,72 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     return result;
   }
 
-  function possibleFocusPoint(fromPoint, toBox) {
-    var result = {
-      fwd: toBox.fwd1,
-      ort: fromPoint.ort
+  function elementBox($el) {
+    if (!$el.box) {
+      var offset = $el.offset();
+      $el.box = {
+        x1: offset.left,
+        y1: offset.top,
+        x2: offset.left + $el.outerWidth(),
+        y2: offset.top + $el.outerHeight()
+      };
+    }
+    return $el.box;
+  }
+
+  function boxInDirection(box, direction) {
+    var p1 = coordsInDirection({ x: box.x1, y: box.y1 }, direction);
+    var p2 = coordsInDirection({ x: box.x2, y: box.y2 }, direction);
+    return {
+      fwd1: Math.min(p1.fwd, p2.fwd),
+      ort1: Math.min(p1.ort, p2.ort),
+      fwd2: Math.max(p1.fwd, p2.fwd),
+      ort2: Math.max(p1.ort, p2.ort)
     };
+  }
 
-    if (result.ort < toBox.ort1)
-      result.ort = toBox.ort1;
-    if (result.ort > toBox.ort2)
-      result.ort = toBox.ort2;
+  function coordsInDirection(coords, direction) {
+    switch (direction) {
+      case 'left':
+        return { fwd: -coords.x, ort: -coords.y };
+      case 'right':
+        return { fwd:  coords.x, ort:  coords.y };
+      case 'down':
+        return { fwd:  coords.y, ort: -coords.x };
+      case 'up':
+        return { fwd: -coords.y, ort:  coords.x };
+    }
+  }
 
-    return result;
+  function coordsFromDirection(coords, direction) {
+    switch (direction) {
+      case 'left':
+        return { x: -coords.fwd, y: -coords.ort };
+      case 'right':
+        return { x:  coords.fwd, y:  coords.ort };
+      case 'down':
+        return { x: -coords.ort, y:  coords.fwd };
+      case 'up':
+        return { x:  coords.ort, y: -coords.fwd };
+    }
+  }
+
+  function boxCoordsToClient(coords, box) {
+    return {
+      x: coords.x + box.x1,
+      y: coords.y + box.y1
+    };
+  }
+
+  function clientCoordsToBox(coords, box) {
+    return {
+      x: coords.x - box.x1,
+      y: coords.y - box.y1
+    };
+  }
+
+  function bound(val, min, max) {
+    return Math.min(Math.max(val, min), max);
   }
 
 
@@ -392,8 +406,12 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   */
 
+  function clearDots() {
+    $('.freefocus-debug').remove();
+  }
+
   function putDot(coords, color, title) {
-    $('<div title="' + title + '"></div>').appendTo($('body')).css({
+    $('<div class="freefocus-debug"></div>').appendTo($('body')).css({
       position: 'absolute',
       left: coords.x - 3,
       top: coords.y - 3,
@@ -401,7 +419,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
       height: 6,
       background: color,
       'border-radius': 3
-    });
+    }).attr('title', title);
   }
 
 

@@ -30,13 +30,13 @@ describe "$.fn.freefocus", ->
     spy.reset()
 
   it "should move according to directional navigation css properties", ->
-    $('#p10').attr('style', 'nav-bottom: #p11');
-    $('#p10').freefocus move: 'bottom', targets: $('.grid>div'), useNavProps: true
+    $('#p10').attr('style', 'nav-down: #p11');
+    $('#p10').freefocus move: 'down', targets: $('.grid>div'), useNavProps: true
     expect($('#p11')).toBeFocused()
 
   it "should move according to directional navigation style properties", ->
-    $('#p11').get(0).style.navBottom = '#p10'
-    $('#p11').freefocus move: 'bottom', targets: $('.grid>div'), useNavProps: true
+    $('#p11').get(0).style.navDown = '#p10'
+    $('#p11').freefocus move: 'down', targets: $('.grid>div'), useNavProps: true
     expect($('#p10')).toBeFocused()
 
 describe "$.freefocus", ->
