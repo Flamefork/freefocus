@@ -16,7 +16,9 @@ Just use HTML for UI and let FreeFocus navigate it "visually" — using position
 focusable elements on page. If user pressed "right", just move focus to focusable
 element placed to the right of the current focused one. It's that easy.
 
-It can be used as a polyfill for CSS3 UI `nav-*` directional focus navigation properties.
+It can be used as a polyfill for [CSS3 UI `nav-*` directional focus navigation](http://www.w3.org/TR/css3-ui/#nav-dir).
+
+Uses [W3C WICD Current Focus Point Algorithm](http://www.w3.org/TR/WICD/#current-focus-point-algorithm) for focus traversal.
 
 ## Download
 
@@ -43,7 +45,8 @@ Set up keyboard navigation.
 
 Options:
 
-- `focusablesSelector` - selector for keyboard navigation targets. default: `'[tabindex]'`
+- `focusablesSelector` - selector for keyboard navigation targets. default: a long selector describing all focusable options in web browsers.
+  You may want to provide something shorter to improve performance or use `:focusable` from jQuery UI.
 - `focusedSelector` - selector for currently focused (or active) element. default: `':focus'`
 - `hoverFocus` - focus target elements on mouse enter. default: `false`
 - `throttle` - throttle key input for specified time (in milliseconds). Adds dependency on underscore.js if enabled. default: `false`
@@ -65,15 +68,14 @@ Options:
 - `debug` - print weighting information over targets. default: `false`
 - `trigger` - event to trigger on selected target. default: `'focus'`
 - `useNavProps` - respect `nav-*` directional focus navigation style properties. default: `true`
-- `weightFn` - function to determine the best match in specified direction. default: `$.freefocus.weightFn`
 
-    `weightFn` arguments:
+## Changelog
 
-    - `from` - active element and its position summary: `[element, {width, height, top, left, center: {x, y}}]`
-    - `to` - possible target and its position summary
-    - `move` - move direction
-    - `distance` - distance between centers of `from` and `to` elements
-    - `angle` - angle between the move direction and direction to `to` element
-
-    Function should return either `true` (exact match), `false` (no match)
-    or "weight" of the possible target.Target with lowest weight is the best match.
+- 0.4.0 Implemented WICD Current focus point focus navigation algorythm.
+- 0.3.1 Support for non-standard arrow key codes. Added input throttling (depends on UnderscoreJS).
+- 0.3.0 Rewritten in vanilla JavaScript for easier maintenance.
+- 0.2.2 Fixed double movement for platforms that already implement spatial navigation.
+- 0.2.1 Added support for navLeft DOM properties in addition to nav-left CSS properties.
+- 0.2.0 Added support for CSS3 UI `nav-*` directional focus navigation properties. Changed naming style from under_scores to camelCase.
+- 0.1.1 Updated minor stuff like readme, packaging, documentation
+- 0.1.0 Initial version

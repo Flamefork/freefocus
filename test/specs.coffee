@@ -44,7 +44,6 @@ describe "$.freefocus", ->
 
   it "should work out of box", ->
     $.freefocus()
-
     $('#p04').trigger('focus')
     pressKey 'left'
     expect($('#p03')).toBeFocused()
@@ -55,3 +54,60 @@ describe "$.freefocus", ->
     pressKey 'up'
     expect($('#p04')).toBeFocused()
 
+  it "should behave in WICD-specified way", ->
+    $.freefocus()
+    $('#p00').trigger('focus') # 1
+    pressKey 'down'
+    expect($('#p02')).toBeFocused() # 2
+    pressKey 'down'
+    expect($('#p04')).toBeFocused() # 3
+    pressKey 'left'
+    expect($('#p03')).toBeFocused() # 4
+    pressKey 'down'
+    expect($('#p05')).toBeFocused() # 5
+    pressKey 'right'
+    expect($('#p06')).toBeFocused() # 6
+    pressKey 'down'
+    expect($('#p07')).toBeFocused() # 7
+    pressKey 'down'
+    expect($('#p09')).toBeFocused() # 8
+    pressKey 'right'
+    expect($('#p21')).toBeFocused() # 9
+    pressKey 'up'
+    expect($('#p20')).toBeFocused() # 10
+    pressKey 'up'
+    expect($('#p14')).toBeFocused() # 11
+    pressKey 'up'
+    expect($('#p13')).toBeFocused() # 12
+    pressKey 'up'
+    expect($('#p12')).toBeFocused() # 13
+    pressKey 'down'
+    expect($('#p13')).toBeFocused() # 14
+    pressKey 'right'
+    expect($('#p15')).toBeFocused() # 15
+    pressKey 'up'
+    expect($('#p12')).toBeFocused() # 16
+    pressKey 'down'
+    expect($('#p15')).toBeFocused() # 17
+    pressKey 'right'
+    expect($('#p16')).toBeFocused() # 18
+    pressKey 'up'
+    expect($('#p12')).toBeFocused() # 19
+    pressKey 'down'
+    expect($('#p16')).toBeFocused() # 20
+    pressKey 'down'
+    expect($('#p18')).toBeFocused() # 21
+    pressKey 'left'
+    expect($('#p17')).toBeFocused() # 22
+    pressKey 'down'
+    expect($('#p19')).toBeFocused() # 23
+    pressKey 'down'
+    expect($('#p20')).toBeFocused() # 24
+    pressKey 'down'
+    expect($('#p22')).toBeFocused() # 25
+    pressKey 'down'
+    expect($('#p23')).toBeFocused() # 26
+    pressKey 'right'
+    expect($('#p24')).toBeFocused() # 27
+    pressKey 'down'
+    expect($('#p24')).toBeFocused() # end

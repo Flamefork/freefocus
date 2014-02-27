@@ -17,7 +17,8 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   Options:
 
-  - `focusablesSelector` - selector for keyboard navigation targets. default: `'[tabindex]'`
+  - `focusablesSelector` - selector for keyboard navigation targets. default: a long selector describing all focusable options in web browsers.
+    You may want to provide something shorter to improve performance or use `:focusable` from jQuery UI.
   - `focusedSelector` - selector for currently focused (or active) element. default: `':focus'`
   - `hoverFocus` - focus target elements on mouse enter. default: `false`
   - `throttle` - throttle key input for specified time (in milliseconds). Uses underscore.js. default: `false`
@@ -56,7 +57,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
       keyHandler = _.throttle(keyHandler, setupOptions.throttle);
 
     addHandler('keydown', function(event) {
-      var move = $.freefocus.moveKeys[event.which];
+      var move = $.freefocus.keys[event.which];
 
       if (!move)
         return;
@@ -88,18 +89,6 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   - `debug` - print weighting information over targets. default: `false`
   - `trigger` - event to trigger on selected target. default: `'focus'`
   - `useNavProps` - respect `nav-*` directional focus navigation style properties. default: `true`
-  - `weightFn` - function to determine the best match in specified direction.
-    Arguments:
-     - `from` - active element and its position summary: `[element, {width, height, top, left, center: {x, y}}]`
-     - `to` - possible target and its position summary
-     - `move` - move direction
-     - `distance` - distance between centers of `from` and `to` elements
-     - `angle` - angle between the move direction and direction to `to` element
-
-    Function should return either `true` (exact match), `false` (no match)
-    or "weight" of the possible target.
-    Target with lowest weight is the best match.
-    Default: `$.freefocus.weightFn`
 
   Usage:
   ```
@@ -111,7 +100,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   $.fn.freefocus = function(options) {
     options = $.extend({}, $.freefocus.moveOptions, options);
 
-    if ($.freefocus.angles[options.move] === null)
+    if ($.freefocus.moves[options.move] === null)
       throw new Error("Unknown move direction '" + options.move + "'");
     if (!(options.targets instanceof $))
       throw new Error("Argument targets should be a jQuery object");
@@ -120,21 +109,14 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     if (!this.size())
       return this; // It's useful to be silent here
 
-    var to = null;
-
-    if (options.useNavProps) {
-      var toSelector = this.get(0).style["nav" + (options.move.charAt(0).toUpperCase()) + (options.move.slice(1))];
-      toSelector || (toSelector = parseStyleString(this.attr('style') || '')["nav-" + options.move]);
-      if (toSelector && (toSelector.indexOf('#') === 0)) // CSS3 UI only defines #id value to be directive
-        to = $(toSelector).get(0);
-    }
-
-    to || (to = targetWithMinWeight(this.get(0), options));
+    var to = targetFromNavProps(this, options) || targetWithMinDistance(this, options);
 
     if (!to)
       return this; // It's useful to be silent here
 
-    $(to).trigger(options.trigger);
+    moveFocusPoint(to, options.move);
+
+    to.trigger(options.trigger);
 
     return this;
   };
@@ -146,14 +128,6 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   */
 
-  $.freefocus.weightFn = function(info) {
-    if (info.angle > 89) {
-      return false;
-    } else {
-      return 4 * info.angle + info.distance;
-    }
-  };
-
   $.freefocus.moveOptions = {
     trigger: 'focus',
     weightFn: $.freefocus.weightFn,
@@ -162,95 +136,64 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   };
 
   $.freefocus.setupOptions = {
-    focusablesSelector: '[tabindex]',
+    focusablesSelector: [
+      'a[href]',
+      'area[href]',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      'button:not([disabled])',
+      'iframe',
+      'object',
+      'embed',
+      '*[tabindex]',
+      '*[contenteditable]'
+    ].join(', '),
     focusedSelector: ':focus',
     hoverFocus: false,
     throttle: false
   };
 
-  $.freefocus.moveKeys = {
+  $.freefocus.keys = {
     37: 'left',
     38: 'up',
     39: 'right',
     40: 'down'
   };
 
-  $.freefocus.angles = {
-    left: Math.atan2(0, -1),
-    up: Math.atan2(-1, 0),
-    right: Math.atan2(0, 1),
-    down: Math.atan2(1, 0)
+  $.freefocus.moves = {
+    left: {},
+    right: {},
+    up: {},
+    down: {}
+  };
+
+  $.freefocus.focusPoint = {
+    element: null,
+    x: null,
+    y: null
   };
 
 
   /*
 
-  Calculations:
+  Private:
 
   */
 
-  function elementInfo(element) {
-    var $el = $(element);
-    var result = $el.offset();
-    result.width = $el.width();
-    result.height = $el.height();
-    result.center = {
-      x: result.left + result.width / 2,
-      y: result.top + result.height / 2
-    };
-    return result;
-  }
+  function targetFromNavProps($el, options) {
+    var to =
+      $el.get(0).style["nav" + (options.move.charAt(0).toUpperCase()) + (options.move.slice(1))] ||
+      parseStyleString($el.attr('style') || '')["nav-" + options.move];
 
-  function distanceAngle(from, to, move) {
-    var dx = to.x - from.x;
-    var dy = to.y - from.y;
-    var distance = Math.sqrt(dx * dx + dy * dy);
-    var angle = Math.abs($.freefocus.angles[move] - Math.atan2(dy, dx)) / Math.PI * 180;
-    if (angle > 180) {
-      angle = Math.abs(angle - 360);
+    if (!to)
+      return;
+
+    if (to.indexOf('#') === 0) {
+      return $(to);
+    } else {
+      throw new Error("Invalid nav-" + options.move + " selector '" + to + "': only #id allowed.");
     }
-    return {
-      distance: distance,
-      angle: angle
-    };
-  }
-
-  function targetWithMinWeight(from, options) {
-    var fromInfo = elementInfo(from);
-    var to = null;
-    var minWeight = null;
-
-    options.targets.each(function() {
-      if (this === from)
-        return;
-
-      var targetInfo = elementInfo(this);
-
-      var info = distanceAngle(fromInfo.center, targetInfo.center, options.move);
-
-      var weight = options.weightFn({
-        from: [from, fromInfo],
-        to: [this, targetInfo],
-        move: options.move,
-        distance: info.distance,
-        angle: info.angle
-      });
-
-      if (options.debug) {
-        logWeights(this, info.distance, info.angle, weight);
-      }
-
-      if (weight === true) { // exact match
-        to = this;
-        return false;
-      } else if (weight === false) {
-        // nothing
-      } else if (!minWeight || weight < minWeight) {
-        minWeight = weight;
-        to = this;
-      }
-    });
-    return to;
   }
 
   function parseStyleString(style) {
@@ -263,27 +206,202 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     return result;
   }
 
-  function logWeights(element, distance, angle, weight) {
-    var style = [
-      'position: absolute',
-      'left: 5px',
-      'top: 5px',
-      'font-size: 10px',
-      'font-family: monospace',
-      'color: #fff',
-      'text-shadow: 0 0 2px #000'
-    ].join(';');
+  function targetWithMinDistance($fromEl, options) {
+    if (options.debug) {
+      putDot($.freefocus.focusPoint, 'red', 'focus point for ' + $fromEl.get(0).id);
+    }
 
-    var content = [
-      'd = ' + Math.round(distance),
-      'a = ' + Math.round(angle),
-      'w = ' + weight ? Math.round(weight) : ''
-    ].join('<br/>');
+    var fromBox = boxToDirection(elementBox($fromEl), options.move);
+    var focusPoint = coordsInDirection(focusPointInDirection($fromEl, options.move, options.debug), options.move);
 
-    var span = '<span class="weights" style="' + style + '">' + content + '</span>';
 
-    $('span.weights', element).remove();
-    $(element).append(span);
+    var minDistance = Infinity;
+    var to = null;
+
+    options.targets.each(function() {
+      var $toEl = $(this);
+
+      // Skip currently focused element
+      if ($toEl.is($fromEl))
+        return;
+
+      var toBox = boxToDirection(elementBox($toEl), options.move);
+
+      // Skip elements that are not in the direction of movement
+      if (toBox.fwd2 <= fromBox.fwd2)
+        return;
+
+      var dist = distance(fromBox, toBox, focusPoint);
+
+      if (dist < minDistance) {
+        to = $toEl;
+        minDistance = dist;
+      }
+    });
+
+    return to;
+  }
+
+  function focusPointInDirection($el, direction, debug) {
+    var box = elementBox($el);
+    var fp = $.freefocus.focusPoint;
+
+    // If the element was focused by freefocus,
+    // thus we have valid current focus point
+    if ($el.is(fp.$el)) {
+      // Move focus point to the exit edge for given direction
+      switch (direction) {
+        case 'left':
+          fp.x = box.x1; break;
+        case 'right':
+          fp.x = box.x2; break;
+        case 'up':
+          fp.y = box.y1; break;
+        case 'down':
+          fp.y = box.y2; break;
+      }
+    } else {
+      // Just pick the center of the element
+      fp = $.freefocus.focusPoint = {
+        element: $el,
+        x: Math.round(box.x1 + (box.x2 - box.x1) / 2),
+        y: Math.round(box.y1 + (box.y2 - box.y1) / 2)
+      };
+      if (debug) {
+        putDot(fp, 'blue', 'picked focus point for ' + $el.get(0).id);
+      }
+    }
+    return fp;
+  }
+
+  function moveFocusPoint($el, direction) {
+    var box = elementBox($el);
+    var fp = $.freefocus.focusPoint;
+
+    fp.$el = $el;
+
+    switch (direction) {
+      case 'left':
+        fp.x = box.x2; break;
+      case 'right':
+        fp.x = box.x1; break;
+      case 'up':
+        fp.y = box.y2; break;
+      case 'down':
+        fp.y = box.y1; break;
+    }
+  }
+
+  function elementBox($el) {
+    var offset = $el.offset();
+    return {
+      x1: offset.left,
+      y1: offset.top,
+      x2: offset.left + $el.outerWidth(),
+      y2: offset.top + $el.outerHeight()
+    };
+  }
+
+  function boxToDirection(box, direction) {
+    switch (direction) {
+      case 'left':
+        return { fwd1: -box.x2, fwd2: -box.x1, ort1: -box.y2, ort2: -box.y1 };
+      case 'right':
+        return { fwd1:  box.x1, fwd2:  box.x2, ort1:  box.y1, ort2:  box.y2 };
+      case 'up':
+        return { fwd1: -box.y2, fwd2: -box.y1, ort1:  box.x1, ort2:  box.x2 };
+      case 'down':
+        return { fwd1:  box.y1, fwd2:  box.y2, ort1: -box.x2, ort2: -box.x1 };
+    }
+  }
+
+  function coordsInDirection(coords, direction) {
+    switch (direction) {
+      case 'left':
+        return { fwd: -coords.x, ort: -coords.y };
+      case 'right':
+        return { fwd:  coords.x, ort:  coords.y };
+      case 'down':
+        return { fwd:  coords.y, ort: -coords.x };
+      case 'up':
+        return { fwd: -coords.y, ort:  coords.x };
+    }
+  }
+
+  function distance(fromBox, toBox, fromPoint) {
+    var toPoint = possibleFocusPoint(fromPoint, toBox);
+
+    var fwdDist = Math.abs(toPoint.fwd - fromPoint.fwd);
+    var ortDist = Math.abs(toPoint.ort - fromPoint.ort);
+
+    // The Euclidian distance between the current focus point position and
+    // its potential position in the candidate.
+    // If the two positions have the same coordinate on the axis orthogonal
+    // to the navigation direction, dotDist is forced to 0 in order to favor
+    // elements in direction of navigation
+    var dotDist;
+    if (toPoint.ort === fromPoint.ort) {
+      dotDist = 0;
+    } else {
+      dotDist = Math.sqrt(fwdDist * fwdDist + ortDist * ortDist);
+    }
+
+    // The overlap between the opposing edges of currently focused element and the candidate.
+    // Elements are rewarded for having high overlap with the currently focused element.
+    var overlap = boxOverlap(fromBox, toBox);
+
+    return dotDist + fwdDist + 2 * ortDist - Math.sqrt(overlap);
+  }
+
+  function boxOverlap(box1, box2) {
+    var orts = {
+      ort1: box1.ort1,
+      ort2: box1.ort2
+    };
+
+    if (box2.ort1 > orts.ort1)
+      orts.ort1 = box2.ort1;
+    if (box2.ort2 < orts.ort2)
+      orts.ort2 = box2.ort2;
+
+    var result = orts.ort2 - orts.ort1;
+    if (result < 0)
+      result = 0;
+
+    return result;
+  }
+
+  function possibleFocusPoint(fromPoint, toBox) {
+    var result = {
+      fwd: toBox.fwd1,
+      ort: fromPoint.ort
+    };
+
+    if (result.ort < toBox.ort1)
+      result.ort = toBox.ort1;
+    if (result.ort > toBox.ort2)
+      result.ort = toBox.ort2;
+
+    return result;
+  }
+
+
+  /*
+
+  Debug:
+
+  */
+
+  function putDot(coords, color, title) {
+    $('<div title="' + title + '"></div>').appendTo($('body')).css({
+      position: 'absolute',
+      left: coords.x - 3,
+      top: coords.y - 3,
+      width: 6,
+      height: 6,
+      background: color,
+      'border-radius': 3
+    });
   }
 
 
