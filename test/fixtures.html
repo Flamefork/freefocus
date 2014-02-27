@@ -1,63 +1,84 @@
 <style>
-    .grid div {
-        float: left;
-        width: 99px;
-        height: 99px;
-        margin: 0 1px 1px 0;
-        background: #eee;
-        text-align: center;
-        line-height: 99px;
-        vertical-align: middle;
-    }
+  .grid div {
+    position: absolute;
+    box-sizing: border-box;
+    background: linear-gradient(to bottom, #fefcea 0%, #f1da36 100%);
+    border: 1px solid #bd6500;
+    color: #bd6500;
+    text-align: center;
+    font-family: sans-serif;
+    font-size: 14px;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+
+  .grid div span {
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    font-size: 8px;
+    line-height: 8px;
+  }
+
+  .grid div:focus {
+    outline: none;
+    background: #bd6500;
+    color: #fff;
+  }
+
+  #p00 { left:  39px; top:  38px; width: 166px; height: 58px; line-height: 58px; }
+  #p01 { left:  39px; top: 106px; width:  54px; height: 48px; line-height: 48px; }
+  #p02 { left:  99px; top: 106px; width:  55px; height: 47px; line-height: 47px; }
+  #p03 { left:  39px; top: 178px; width:  51px; height: 50px; line-height: 50px; }
+  #p04 { left: 100px; top: 178px; width:  51px; height: 50px; line-height: 50px; }
+  #p05 { left:  39px; top: 246px; width:  51px; height: 50px; line-height: 50px; }
+  #p06 { left: 100px; top: 246px; width:  51px; height: 50px; line-height: 50px; }
+  #p07 { left:  39px; top: 307px; width: 166px; height: 47px; line-height: 47px; }
+  #p08 { left:  39px; top: 360px; width:  41px; height: 67px; line-height: 67px; }
+  #p09 { left:  92px; top: 360px; width: 113px; height: 67px; line-height: 67px; }
+  #p10 { left:  39px; top: 436px; width:  74px; height: 51px; line-height: 51px; }
+  #p11 { left: 130px; top: 436px; width:  74px; height: 51px; line-height: 51px; }
+  #p12 { left: 223px; top:  38px; width: 166px; height: 58px; line-height: 58px; }
+  #p13 { left: 160px; top: 106px; width: 108px; height: 95px; line-height: 95px; }
+  #p14 { left: 160px; top: 216px; width: 108px; height: 85px; line-height: 85px; }
+  #p15 { left: 273px; top: 106px; width:  54px; height: 48px; line-height: 48px; }
+  #p16 { left: 335px; top: 106px; width:  54px; height: 48px; line-height: 48px; }
+  #p17 { left: 273px; top: 158px; width:  54px; height: 48px; line-height: 48px; }
+  #p18 { left: 335px; top: 158px; width:  54px; height: 48px; line-height: 48px; }
+  #p19 { left: 280px; top: 216px; width: 108px; height: 81px; line-height: 81px; }
+  #p20 { left: 223px; top: 307px; width: 166px; height: 47px; line-height: 47px; }
+  #p21 { left: 227px; top: 362px; width:  78px; height: 69px; line-height: 69px; }
+  #p22 { left: 310px; top: 362px; width:  76px; height: 67px; line-height: 67px; }
+  #p23 { left: 229px; top: 439px; width: 107px; height: 49px; line-height: 49px; }
+  #p24 { left: 347px; top: 437px; width:  39px; height: 51px; line-height: 51px; }
+
+  #p15, #p16 { font-size: 10px; }
 </style>
-<div class="grid" style="width: 1000px">
-    <div tabindex="1" id="p00">00</div>
-    <div tabindex="1" id="p01">01</div>
-    <div tabindex="1" id="p02">02</div>
-    <div tabindex="1" id="p03">03</div>
-    <div tabindex="1" id="p04">04</div>
-    <div tabindex="1" id="p05">05</div>
-    <div tabindex="1" id="p06">06</div>
-    <div tabindex="1" id="p07">07</div>
-    <div tabindex="1" id="p08">08</div>
-    <div tabindex="1" id="p09" style="nav-right: #p10">09</div>
-    <br style="clear: both"/>
-    <div tabindex="1" id="p10" style="nav-left: #p09">10</div>
-    <div tabindex="1" id="p11">11</div>
-    <div tabindex="1" id="p12">12</div>
-    <div tabindex="1" id="p13">13</div>
-    <div tabindex="1" id="p14">14</div>
-    <div tabindex="1" id="p15" style="nav-right: #bogus">15</div>
-    <div tabindex="1" id="p16">16</div>
-    <div tabindex="1" id="p17">17</div>
-    <div tabindex="1" id="p18">18</div>
-    <div tabindex="1" id="p19">19</div>
-    <br style="clear: both"/>
-    <div tabindex="1" id="p20">20</div>
-    <div tabindex="1" id="p21">21</div>
-    <div tabindex="1" id="p22">22</div>
-    <div tabindex="1" id="p23">23</div>
-    <div tabindex="1" id="p24">24</div>
-    <div tabindex="1" id="p25">25</div>
-    <div tabindex="1" id="p26">26</div>
-    <div tabindex="1" id="p27">27</div>
-    <div tabindex="1" id="p28">28</div>
-    <div tabindex="1" id="p29">29</div>
-    <br style="clear: both"/>
-    <div tabindex="1" id="p30">30</div>
-    <div tabindex="1" id="p39" style="margin-left: 800px;">39</div>
-    <br style="clear: both"/>
-    <div tabindex="1" id="p40">40</div>
-    <div tabindex="1" id="p41">41</div>
-    <div tabindex="1" id="p42">42</div>
-    <div tabindex="1" id="p43">43</div>
-    <div tabindex="1" id="p44">44</div>
-    <div tabindex="1" id="p45">45</div>
-    <div tabindex="1" id="p46">46</div>
-    <div tabindex="1" id="p47">47</div>
-    <div tabindex="1" id="p48">48</div>
-    <div tabindex="1" id="p49">49</div>
-    <br style="clear: both"/>
-    <div tabindex="1" id="p50">50</div>
-    <div tabindex="1" id="p59" style="margin-left: 800px;">59</div>
+
+<div class="grid">
+  <div id="p00" tabindex="1"><span>00</span>1&darr;</div>
+  <div id="p01" tabindex="1"><span>01</span></div>
+  <div id="p02" tabindex="1"><span>02</span>2&darr;</div>
+  <div id="p03" tabindex="1"><span>03</span>4&darr;</div>
+  <div id="p04" tabindex="1"><span>04</span>3&larr;</div>
+  <div id="p05" tabindex="1"><span>05</span>5&rarr;</div>
+  <div id="p06" tabindex="1"><span>06</span>6&darr;</div>
+  <div id="p07" tabindex="1"><span>07</span>7&darr;</div>
+  <div id="p08" tabindex="1"><span>08</span></div>
+  <div id="p09" tabindex="1"><span>09</span>8&rarr;</div>
+  <div id="p10" tabindex="1"><span>10</span></div>
+  <div id="p11" tabindex="1"><span>11</span></div>
+  <div id="p12" tabindex="1"><span>12</span>13&darr; 16&darr; 19&darr;</div>
+  <div id="p13" tabindex="1"><span>13</span>12&uarr; 14&rarr;</div>
+  <div id="p14" tabindex="1"><span>14</span>11&uarr;</div>
+  <div id="p15" tabindex="1"><span>15</span>15&uarr; 17&rarr;</div>
+  <div id="p16" tabindex="1"><span>16</span>18&uarr; 20&darr;</div>
+  <div id="p17" tabindex="1"><span>17</span>22&darr;</div>
+  <div id="p18" tabindex="1"><span>18</span>21&larr;</div>
+  <div id="p19" tabindex="1"><span>19</span>23&darr;</div>
+  <div id="p20" tabindex="1"><span>20</span>10&uarr;, 24&darr;</div>
+  <div id="p21" tabindex="1"><span>21</span>9&uarr;</div>
+  <div id="p22" tabindex="1"><span>22</span>25&darr;</div>
+  <div id="p23" tabindex="1"><span>23</span>26&rarr;</div>
+  <div id="p24" tabindex="1"><span>24</span>27</div>
 </div>

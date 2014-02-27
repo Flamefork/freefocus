@@ -1,40 +1,21 @@
-function expectFocus(selector, fn) {
-  'use strict';
-
-  var spy = spyOnEvent(selector, 'focus');
-  fn();
-  expect(spy).toHaveBeenTriggered();
-  spy.reset();
-}
-
 function printFocused() {
   'use strict';
 
-  console.log("Focused: " + document.activeElement.className);
-}
-
-function printDebug(className) {
-  'use strict';
-
-  var el = document.getElementsByClassName(className)[0];
-  var info = $('span.weights', el).text().trim().split(/\s+/).join(' ');
-  console.log("" + className + ": " + info);
+  console.log("Focused: " + document.activeElement.outerHTML);
 }
 
 function pressKey(direction) {
   'use strict';
 
-  var e = jQuery.Event('keydown');
-  e.which = keycodes[direction];
-  $(document).trigger(e);
-}
+  var keyCode = {
+    left: 37,
+    up: 38,
+    right: 39,
+    down: 40
+  }[direction];
 
-var keycodes = {
-  left: 37,
-  up: 38,
-  right: 39,
-  down: 40
-};
+  $(document).trigger(jQuery.Event('keydown', { which: keyCode }));
+}
 
 // Fix few uses of `:focus` selector on PhantomJS
 
