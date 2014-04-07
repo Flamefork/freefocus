@@ -71,8 +71,9 @@ Options:
 
 ## Changelog
 
+- 0.4.2 Fixed using spatial navigation algorithm as a fallback for nav properties.
 - 0.4.1 Added maxDistance option. Focus point now stored relative to focused element, so it's consistent even if element is moved / scrolled.
-- 0.4.0 Implemented WICD Current focus point focus navigation algorythm.
+- 0.4.0 Implemented WICD Current focus point focus navigation algorithm.
 - 0.3.1 Support for non-standard arrow key codes. Added input throttling (depends on UnderscoreJS).
 - 0.3.0 Rewritten in vanilla JavaScript for easier maintenance.
 - 0.2.2 Fixed double movement for platforms that already implement spatial navigation.
