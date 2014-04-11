@@ -21,7 +21,8 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     You may want to provide something shorter to improve performance or use `:focusable` from jQuery UI.
   - `focusedSelector` - selector for currently focused (or active) element. default: `':focus'`
   - `hoverFocus` - focus target elements on mouse enter. default: `false`
-  - `throttle` - throttle key input for specified time (in milliseconds). Uses underscore.js. default: `false`
+  - `throttle` - throttle key input for specified time (in milliseconds).
+    You'll need underscore.js included to use this feature. default: `false`
 
   Move options are passed to `$.fn.freefocus`
 
@@ -34,6 +35,11 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   Remove previously set keyboard navigation.
 
+
+  ### $.freefocus('cache'[, elements])
+
+  Compute and cache dimension information for set of elements. `elements` default: installed `focusablesSelector`
+
   */
 
   $.freefocus = function(setupOptions, moveOptions) {
@@ -42,12 +48,19 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
       return;
     }
 
+    if (setupOptions === 'cache') {
+      cacheFocusables(moveOptions);
+      return;
+    }
+
     setupOptions = $.extend({}, $.freefocus.setupOptions, setupOptions);
+
+    $.freefocus.installedFocusablesSelector = setupOptions.focusablesSelector;
 
     var keyHandler = function(move) {
       var options = $.extend({}, moveOptions, {
         move: move,
-        targets: $(setupOptions.focusablesSelector)
+        targets: $(setupOptions.focusablesSelector).filter(':visible')
       });
 
       $(setupOptions.focusedSelector).freefocus(options);
@@ -90,15 +103,42 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   - `trigger` - event to trigger on selected target. default: `'focus'`
   - `useNavProps` - respect `nav-*` directional focus navigation style properties. default: `true`
   - `maxDistance` - maximum distance to element to still consider moving to it. default: `Infinity`
+  - `cache` - cache dimension information for element. default: `false`
+    You'll need to manually reset cache for moved elements by using `$(element).freefocus('moved')`
 
   Usage:
   ```
   $(':focus').freefocus({move: 'right', targets: $('[tabindex]')})
   ```
 
+
+  ### .freefocus('dimensions')
+
+  Get dimension object for element. Uses cache, if it's enabled.
+
+
+  ### .freefocus('moved')
+
+  Clears cache for element.
+
   */
 
   $.fn.freefocus = function(options) {
+    if (options === 'dimensions') {
+      var box = getElementBox(this, true);
+      return {
+        left: box.x1,
+        top: box.y1,
+        width: box.x2 - box.x1,
+        height: box.y2 - box.y1
+      };
+    }
+
+    if (options === 'moved') {
+      this.data('freefocus-dimensions', null);
+      return;
+    }
+
     options = $.extend({}, $.freefocus.moveOptions, options);
 
     if ($.freefocus.moves[options.move] === null)
@@ -114,14 +154,14 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
       clearDots();
     }
 
-    updateFocusPoint(this, options.move);
+    updateFocusPoint(this, options.move, options.cache);
 
     var to = targetFromNavProps(this, options) || targetWithMinDistance(this, options);
 
     if (!to)
       return this; // It's useful to be silent here
 
-    moveFocusPoint(to, options.move, options.debug);
+    moveFocusPoint(to, options.move, options.debug, options.cache);
 
     to.trigger(options.trigger);
 
@@ -176,14 +216,15 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     down: {}
   };
 
-  $.freefocus.focusPoint = {};
-
 
   /*
 
   Private:
 
   */
+
+  $.freefocus.focusPoint = {};
+  $.freefocus.installedFocusablesSelector = null;
 
   function targetFromNavProps($el, options) {
     var to =
@@ -212,8 +253,8 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     return result;
   }
 
-  function updateFocusPoint($el, direction) {
-    var box = elementBox($el);
+  function updateFocusPoint($el, direction, cache) {
+    var box = getElementBox($el, cache);
     var fp = $.freefocus.focusPoint;
 
     // If the element was focused by freefocus,
@@ -229,8 +270,8 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     fp.updatedInDirection.fwd = boxInDirection(box, direction).fwd2;
   }
 
-  function moveFocusPoint($el, direction, debug) {
-    var box = elementBox($el);
+  function moveFocusPoint($el, direction, debug, cache) {
+    var box = getElementBox($el, cache);
     var fp = $.freefocus.focusPoint;
 
     fp.$el = $el;
@@ -248,7 +289,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   }
 
   function targetWithMinDistance($fromEl, options) {
-    var fromBox = boxInDirection(elementBox($fromEl), options.move);
+    var fromBox = boxInDirection(getElementBox($fromEl, options.cache), options.move);
 
     if (options.debug) {
       putDot(coordsFromDirection($.freefocus.focusPoint.updatedInDirection, options.move), '#0f0', 'exit focus point for ' + $fromEl.html());
@@ -264,7 +305,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
       if ($toEl.is($fromEl))
         return;
 
-      var toBox = boxInDirection(elementBox($toEl), options.move);
+      var toBox = boxInDirection(getElementBox($toEl, options.cache), options.move);
 
       // Skip elements that are not in the direction of movement
       if (toBox.fwd2 <= fromBox.fwd2)
@@ -333,17 +374,26 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     return result;
   }
 
-  function elementBox($el) {
-    if (!$el.box) {
-      var offset = $el.offset();
-      $el.box = {
-        x1: offset.left,
-        y1: offset.top,
-        x2: offset.left + $el.outerWidth(),
-        y2: offset.top + $el.outerHeight()
-      };
+  function computeElementBox($el) {
+    var offset = $el.offset();
+    return {
+      x1: offset.left,
+      y1: offset.top,
+      x2: offset.left + $el.outerWidth(),
+      y2: offset.top + $el.outerHeight()
+    };
+  }
+
+  function getElementBox($el, cache) {
+    if (!cache)
+      return computeElementBox($el);
+
+    var box = $el.data('freefocus-dimensions');
+    if (!box) {
+      box = computeElementBox($el);
+      $el.data('freefocus-dimensions', box);
     }
-    return $el.box;
+    return box;
   }
 
   function boxInDirection(box, direction) {
@@ -399,6 +449,15 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   function bound(val, min, max) {
     return Math.min(Math.max(val, min), max);
+  }
+
+  function cacheFocusables(selector) {
+    if (!selector) {
+      selector = $.freefocus.installedFocusablesSelector;
+    }
+    $(selector).filter(':visible').each(function () {
+      getElementBox($(this), true);
+    });
   }
 
 
