@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.3.1
+jQuery.Freefocus 0.5.0
 
 Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -36,9 +36,9 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   Remove previously set keyboard navigation.
 
 
-  ### $.freefocus('cache'[, elements])
+  ### $.freefocus('cache')
 
-  Compute and cache dimension information for set of elements. `elements` default: installed `focusablesSelector`
+  Compute and cache dimension information for focusable elements. Uses installed `focusablesSelector`.
 
   */
 
@@ -114,7 +114,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   ### .freefocus('dimensions')
 
-  Get dimension object for element. Uses cache, if it's enabled.
+  Get element dimensions `{top, left, width, height}`. Uses cache, if it's enabled.
 
 
   ### .freefocus('moved')
@@ -451,11 +451,8 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     return Math.min(Math.max(val, min), max);
   }
 
-  function cacheFocusables(selector) {
-    if (!selector) {
-      selector = $.freefocus.installedFocusablesSelector;
-    }
-    $(selector).filter(':visible').each(function () {
+  function cacheFocusables() {
+    $($.freefocus.installedFocusablesSelector).filter(':visible').each(function () {
       getElementBox($(this), true);
     });
   }

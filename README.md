@@ -49,13 +49,21 @@ Options:
   You may want to provide something shorter to improve performance or use `:focusable` from jQuery UI.
 - `focusedSelector` - selector for currently focused (or active) element. default: `':focus'`
 - `hoverFocus` - focus target elements on mouse enter. default: `false`
-- `throttle` - throttle key input for specified time (in milliseconds). Adds dependency on underscore.js if enabled. default: `false`
+  - `throttle` - throttle key input for specified time (in milliseconds).
+    You'll need underscore.js included to use this feature. default: `false`
 
 Move options are passed to [`$.fn.freefocus`](#fnfreefocusoptions)
+
 
 ### `$.freefocus('remove')`
 
 Remove previously set keyboard navigation.
+
+
+### `$.freefocus('cache')`
+
+Compute and cache dimension information for focusable elements. Uses installed `focusablesSelector`.
+
 
 ### `$.fn.freefocus({options...})`
 
@@ -68,9 +76,24 @@ Options:
 - `debug` - print weighting information over targets. default: `false`
 - `trigger` - event to trigger on selected target. default: `'focus'`
 - `useNavProps` - respect `nav-*` directional focus navigation style properties. default: `true`
+- `maxDistance` - maximum distance to element to still consider moving to it. default: `Infinity`
+- `cache` - cache dimension information for element. default: `false`
+  You'll need to manually reset cache for moved elements by using `$(element).freefocus('moved')`
+
+
+### `$.fn.freefocus('dimensions')`
+
+Get element dimensions `{top, left, width, height}`. Uses cache, if it's enabled.
+
+
+### `$.fn.freefocus('moved')`
+
+Clears cached dimension info for element. Should be triggered for every element that is moved, if using `cache`.
+
 
 ## Changelog
 
+- 0.5.0 Added support for caching focusable elements dimensions. Speeds up navigation on slow devices.
 - 0.4.2 Fixed using spatial navigation algorithm as a fallback for nav properties.
 - 0.4.1 Added maxDistance option. Focus point now stored relative to focused element, so it's consistent even if element is moved / scrolled.
 - 0.4.0 Implemented WICD Current focus point focus navigation algorithm.
