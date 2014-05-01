@@ -66,8 +66,9 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
       $(setupOptions.focusedSelector).freefocus(options);
     };
 
-    if (setupOptions.throttle !== false)
+    if (typeof setupOptions.throttle === 'number') {
       keyHandler = _.throttle(keyHandler, setupOptions.throttle);
+    }
 
     addHandler('keydown', function(event) {
       var move = $.freefocus.keys[event.which];
