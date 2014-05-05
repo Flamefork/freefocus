@@ -36,9 +36,9 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   Remove previously set keyboard navigation.
 
 
-  ### $.freefocus('cache')
+  ### $.freefocus('cache', focusablesSelector)
 
-  Compute and cache dimension information for focusable elements. Uses installed `focusablesSelector`.
+  Compute and cache dimension information for focusable elements.
 
   */
 
@@ -54,8 +54,6 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     }
 
     setupOptions = $.extend({}, $.freefocus.setupOptions, setupOptions);
-
-    $.freefocus.installedFocusablesSelector = setupOptions.focusablesSelector;
 
     var keyHandler = function(move) {
       var options = $.extend({}, moveOptions, {
@@ -178,7 +176,6 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   $.freefocus.moveOptions = {
     trigger: 'focus',
-    weightFn: $.freefocus.weightFn,
     debug: false,
     useNavProps: true,
     maxDistance: Infinity
@@ -225,7 +222,6 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   */
 
   $.freefocus.focusPoint = {};
-  $.freefocus.installedFocusablesSelector = null;
 
   function targetFromNavProps($el, options) {
     var to =
@@ -452,8 +448,8 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     return Math.min(Math.max(val, min), max);
   }
 
-  function cacheFocusables() {
-    $($.freefocus.installedFocusablesSelector).filter(':visible').each(function () {
+  function cacheFocusables(selector) {
+    $(selector).filter(':visible').each(function () {
       getElementBox($(this), true);
     });
   }
