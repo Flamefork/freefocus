@@ -46,7 +46,7 @@ Set up keyboard navigation.
 Options:
 
 - `focusablesSelector` - selector for keyboard navigation targets. default: a long selector describing all focusable options in web browsers.
-  You may want to provide something shorter to improve performance or use `:focusable` from jQuery UI.
+  You may want to provide something shorter to improve performance or use `:focusable` if you use jQuery UI.
 - `focusedSelector` - selector for currently focused (or active) element. default: `':focus'`
 - `hoverFocus` - focus target elements on mouse enter. default: `false`
   - `throttle` - throttle key input for specified time (in milliseconds).
@@ -60,9 +60,9 @@ Move options are passed to [`$.fn.freefocus`](#fnfreefocusoptions)
 Remove previously set keyboard navigation.
 
 
-### `$.freefocus('cache')`
+### `$.freefocus('cache', focusablesSelector)`
 
-Compute and cache dimension information for focusable elements. Uses installed `focusablesSelector`.
+Compute and cache dimension information for focusable elements.
 
 
 ### `$.fn.freefocus({options...})`
@@ -93,6 +93,7 @@ Clears cached dimension info for element. Should be triggered for every element 
 
 ## Changelog
 
+- 0.5.1 Added selector parameter to caching function. Cleaned up code a bit.
 - 0.5.0 Added support for caching focusable elements dimensions. Speeds up navigation on slow devices.
 - 0.4.2 Fixed using spatial navigation algorithm as a fallback for nav properties.
 - 0.4.1 Added maxDistance option. Focus point now stored relative to focused element, so it's consistent even if element is moved / scrolled.
