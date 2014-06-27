@@ -75,6 +75,8 @@ Options:
 - `targets` - jQuery object containing "focusable" elements. no default
 - `debug` - print weighting information over targets. default: `false`
 - `trigger` - event to trigger on selected target. default: `'focus'`
+- `preTrigger` - event to trigger on selected target before the `trigger` one. default: none
+  Useful if `trigger` is `focus` to move the next focused element into view to avoid native behavior.
 - `useNavProps` - respect `nav-*` directional focus navigation style properties. default: `true`
 - `maxDistance` - maximum distance to element to still consider moving to it. default: `Infinity`
 - `cache` - cache dimension information for element. default: `false`
@@ -93,6 +95,7 @@ Clears cached dimension info for element. Should be triggered for every element 
 
 ## Changelog
 
+- 0.5.2 Added `preTrigger` event.
 - 0.5.1 Added selector parameter to caching function. Cleaned up code a bit.
 - 0.5.0 Added support for caching focusable elements dimensions. Speeds up navigation on slow devices.
 - 0.4.2 Fixed using spatial navigation algorithm as a fallback for nav properties.
