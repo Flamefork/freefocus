@@ -100,9 +100,11 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   - `targets` - jQuery object containing "focusable" elements. no default
   - `debug` - print weighting information over targets. default: `false`
   - `trigger` - event to trigger on selected target. default: `'focus'`
+  - `preTrigger` - event to trigger on selected target before the `trigger` one. default: none
+    Useful if `trigger` is `focus` to move the next focused element into view to avoid native behavior.
   - `useNavProps` - respect `nav-*` directional focus navigation style properties. default: `true`
   - `maxDistance` - maximum distance to element to still consider moving to it. default: `Infinity`
-  - `cache` - cache dimension information for element. default: `false`
+  - `cache` - cache dimension information for element. default: `false`.
     You'll need to manually reset cache for moved elements by using `$(element).freefocus('moved')`
 
   Usage:
@@ -162,6 +164,9 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
     moveFocusPoint(to, options.move, options.debug, options.cache);
 
+    if (options.preTrigger) {
+      to.trigger(options.preTrigger);
+    }
     to.trigger(options.trigger);
 
     return this;
@@ -176,6 +181,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   $.freefocus.moveOptions = {
     trigger: 'focus',
+    preTrigger: false,
     debug: false,
     useNavProps: true,
     maxDistance: Infinity
@@ -183,18 +189,18 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   $.freefocus.setupOptions = {
     focusablesSelector: [
-      'a[href]',
-      'area[href]',
-      'input:not([disabled])',
-      'select:not([disabled])',
-      'textarea:not([disabled])',
-      'button:not([disabled])',
-      'iframe',
-      'object',
-      'embed',
-      '*[tabindex]',
-      '*[contenteditable]'
-    ].join(', '),
+                          'a[href]',
+                          'area[href]',
+                          'input:not([disabled])',
+                          'select:not([disabled])',
+                          'textarea:not([disabled])',
+                          'button:not([disabled])',
+                          'iframe',
+                          'object',
+                          'embed',
+                          '*[tabindex]',
+                          '*[contenteditable]'
+                        ].join(', '),
     focusedSelector: ':focus',
     hoverFocus: false,
     throttle: false

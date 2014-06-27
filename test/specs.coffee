@@ -29,6 +29,16 @@ describe "$.fn.freefocus", ->
     expect(spy).toHaveBeenTriggered()
     spy.reset()
 
+  it "should trigger specified preTrigger event before trigger one", ->
+    spy = spyOnEvent('#p08', 'navigate')
+    preSpy = spyOnEvent('#p08', 'prenavigate')
+    $('#p09').freefocus move: 'left', targets: $('.grid>div'), trigger: 'navigate', preTrigger: 'prenavigate'
+    # todo: test the event order
+    expect(preSpy).toHaveBeenTriggered()
+    expect(spy).toHaveBeenTriggered()
+    preSpy.reset()
+    spy.reset()
+
   it "should move according to directional navigation css properties", ->
     $('#p10').attr('style', 'nav-down: #p11');
     $('#p10').freefocus move: 'down', targets: $('.grid>div'), useNavProps: true
