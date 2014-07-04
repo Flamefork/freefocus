@@ -95,6 +95,7 @@ Clears cached dimension info for element. Should be triggered for every element 
 
 ## Changelog
 
+- 0.5.3 Fixed the bug when freefocus tries to focus invisible element if it's found by CSS3 directional props.
 - 0.5.2 Added `preTrigger` event.
 - 0.5.1 Added selector parameter to caching function. Cleaned up code a bit.
 - 0.5.0 Added support for caching focusable elements dimensions. Speeds up navigation on slow devices.
