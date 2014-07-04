@@ -234,7 +234,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     if (to.indexOf('#') !== 0)
       throw new Error('Invalid nav-' + options.move + ' selector "' + to + '": only #id allowed.');
 
-    if (!$(to).length)
+    if (!$(to).is(':visible'))
       return;
 
     return $(to);
