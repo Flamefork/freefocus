@@ -6,7 +6,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
 */
 
-(function($) {
+(function ($) {
   'use strict';
 
   /*
@@ -35,14 +35,13 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   Remove previously set keyboard navigation.
 
-
   ### $.freefocus('cache', focusablesSelector)
 
   Compute and cache dimension information for focusable elements.
 
   */
 
-  $.freefocus = function(setupOptions, moveOptions) {
+  $.freefocus = function (setupOptions, moveOptions) {
     if (setupOptions === 'remove') {
       removeHandlers();
       return;
@@ -55,7 +54,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
     setupOptions = $.extend({}, $.freefocus.setupOptions, setupOptions);
 
-    var keyHandler = function(move) {
+    var keyHandler = function (move) {
       var options = $.extend({}, moveOptions, {
         move: move,
         targets: $(setupOptions.focusablesSelector).filter(':visible')
@@ -68,7 +67,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
       keyHandler = _.throttle(keyHandler, setupOptions.throttle);
     }
 
-    addHandler('keydown', function(event) {
+    addHandler('keydown', function (event) {
       var move = $.freefocus.keys[event.which];
 
       if (!move)
@@ -80,24 +79,23 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     });
 
     if (setupOptions.hoverFocus) {
-      addHandler('mouseenter', setupOptions.focusablesSelector, function() {
+      addHandler('mouseenter', setupOptions.focusablesSelector, function () {
         var trigger = (moveOptions || {}).trigger || $.freefocus.moveOptions.trigger;
         return $(this).trigger(trigger);
       });
     }
   };
 
-
   /*
 
   ### .freefocus({moveOptions...})
 
-  Move "focus" from active element to one of the targets by triggering specified event.
+  Move 'focus' from active element to one of the targets by triggering specified event.
 
   Options:
 
   - `move` - move direction: `left` | `right` | `up` | `down`. no default
-  - `targets` - jQuery object containing "focusable" elements. no default
+  - `targets` - jQuery object containing 'focusable' elements. no default
   - `debug` - print weighting information over targets. default: `false`
   - `trigger` - event to trigger on selected target. default: `'focus'`
   - `preTrigger` - event to trigger on selected target before the `trigger` one. default: none
@@ -112,11 +110,9 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   $(':focus').freefocus({move: 'right', targets: $('[tabindex]')})
   ```
 
-
   ### .freefocus('dimensions')
 
   Get element dimensions `{top, left, width, height}`. Uses cache, if it's enabled.
-
 
   ### .freefocus('moved')
 
@@ -124,7 +120,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   */
 
-  $.fn.freefocus = function(options) {
+  $.fn.freefocus = function (options) {
     if (options === 'dimensions') {
       var box = getElementBox(this, true);
       return {
@@ -143,11 +139,11 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     options = $.extend({}, $.freefocus.moveOptions, options);
 
     if ($.freefocus.moves[options.move] === null)
-      throw new Error("Unknown move direction '" + options.move + "'");
+      throw new Error('Unknown move direction "' + options.move + '"');
     if (!(options.targets instanceof $))
-      throw new Error("Argument targets should be a jQuery object");
+      throw new Error('Argument targets should be a jQuery object');
     if (this.size() > 1)
-      throw new Error("Can't move from multiple elements");
+      throw new Error('Can\'t move from multiple elements');
     if (!this.size())
       return this; // It's useful to be silent here
 
@@ -171,7 +167,6 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
     return this;
   };
-
 
   /*
 
@@ -220,7 +215,6 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     down: {}
   };
 
-
   /*
 
   Private:
@@ -231,14 +225,14 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   function targetFromNavProps($el, options) {
     var to =
-      $el.get(0).style["nav" + (options.move.charAt(0).toUpperCase()) + (options.move.slice(1))] ||
-      parseStyleString($el.attr('style') || '')["nav-" + options.move];
+      $el.get(0).style['nav' + (options.move.charAt(0).toUpperCase()) + (options.move.slice(1))] ||
+      parseStyleString($el.attr('style') || '')['nav-' + options.move];
 
     if (!to)
       return;
 
     if (to.indexOf('#') !== 0)
-      throw new Error("Invalid nav-" + options.move + " selector '" + to + "': only #id allowed.");
+      throw new Error('Invalid nav-' + options.move + ' selector "' + to + '": only #id allowed.');
 
     if (!$(to).length)
       return;
@@ -301,7 +295,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     var minDistance = Infinity;
     var $resultEl = null;
 
-    options.targets.each(function() {
+    options.targets.each(function () {
       var $toEl = $(this);
 
       // Skip currently focused element
@@ -323,7 +317,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     });
 
     if (options.debug && $resultEl) {
-      console.log("Distance from", $fromEl.get(0), "to", $resultEl.get(0), "is", minDistance);
+      console.log('Distance from', $fromEl.get(0), 'to', $resultEl.get(0), 'is', minDistance);
     }
 
     return $resultEl;
@@ -460,7 +454,6 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     });
   }
 
-
   /*
 
   Debug:
@@ -482,7 +475,6 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
       'border-radius': 3
     }).attr('title', title);
   }
-
 
   /*
 
