@@ -92,17 +92,26 @@ Get element dimensions `{top, left, width, height}`. Uses cache, if it's enabled
 
 Clears cached dimension info for element. Should be triggered for every element that is moved, if using `cache`.
 
+### nav-* properties
+
+Allows for fine-grained control over focus movements.
+FreeFocus implements [CSS3 UI `nav-*` directional focus navigation](http://www.w3.org/TR/css3-ui/#nav-dir) specification with few differences:
+
+- targeing frames is not supported
+- added special value `none`, which disables focus movement in the specified direction. e.g. `nav-left: none;` means that pressing left arrow does nothing
+- added reading JavaScript counterparts to css properties: `navLeft`, `navRight`, `navUp`, `navDown`. e.g. `domNode.navLeft = '#someId';`
 
 ## Changelog
 
+- 0.5.4 Added special `none` value for nav-* properties.
 - 0.5.3 Fixed the bug when freefocus tries to focus invisible element if it's found by CSS3 directional props.
 - 0.5.2 Added `preTrigger` event.
 - 0.5.1 Added selector parameter to caching function. Cleaned up code a bit.
 - 0.5.0 Added support for caching focusable elements dimensions. Speeds up navigation on slow devices.
-- 0.4.2 Fixed using spatial navigation algorithm as a fallback for nav properties.
+- 0.4.2 Fixed using spatial navigation algorithm as a fallback for nav-* properties.
 - 0.4.1 Added maxDistance option. Focus point now stored relative to focused element, so it's consistent even if element is moved / scrolled.
 - 0.4.0 Implemented WICD Current focus point focus navigation algorithm.
-- 0.3.1 Support for non-standard arrow key codes. Added input throttling (depends on UnderscoreJS).
+- 0.3.1 Support for non-standard arrow key codes. Added input throttling option (using UnderscoreJS, if available).
 - 0.3.0 Rewritten in vanilla JavaScript for easier maintenance.
 - 0.2.2 Fixed double movement for platforms that already implement spatial navigation.
 - 0.2.1 Added support for navLeft DOM properties in addition to nav-left CSS properties.
