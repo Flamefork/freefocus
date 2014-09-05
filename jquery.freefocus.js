@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.5.4
+jQuery.Freefocus 0.6.0
 
 Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -19,6 +19,8 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   - `focusablesSelector` - selector for keyboard navigation targets. default: a long selector describing all focusable options in web browsers.
     You may want to provide something shorter to improve performance or use `:focusable` from jQuery UI.
+  - `focusablesFilter` — selector that filters targets after they were selected using `focusablesSelector`.
+    Separated for performance reasons. default: `':visible'`
   - `focusedSelector` - selector for currently focused (or active) element. default: `':focus'`
   - `hoverFocus` - focus target elements on mouse enter. default: `false`
   - `throttle` - throttle key input for specified time (in milliseconds).
@@ -35,9 +37,9 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   Remove previously set keyboard navigation.
 
-  ### $.freefocus('cache', focusablesSelector)
+  ### $.freefocus('cache', options)
 
-  Compute and cache dimension information for focusable elements.
+  Compute and cache dimension information for focusable elements. Options: `focusablesSelector`, `focusablesFilter`
 
   */
 
@@ -57,7 +59,8 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     var keyHandler = function (move) {
       var options = $.extend({}, moveOptions, {
         move: move,
-        targets: $(setupOptions.focusablesSelector).filter(':visible')
+        focusablesSelector: setupOptions.focusablesSelector,
+        focusablesFilter: setupOptions.focusablesFilter
       });
 
       $(setupOptions.focusedSelector).freefocus(options);
@@ -81,7 +84,10 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     if (setupOptions.hoverFocus) {
       addHandler('mouseenter', setupOptions.focusablesSelector, function () {
         var trigger = (moveOptions || {}).trigger || $.freefocus.moveOptions.trigger;
-        return $(this).trigger(trigger);
+        var target = $(this);
+        if (setupOptions.focusablesFilter)
+          target = target.filter(setupOptions.focusablesFilter);
+        return target.trigger(trigger);
       });
     }
   };
@@ -95,10 +101,12 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   Options:
 
   - `move` - move direction: `left` | `right` | `up` | `down`. no default
+  - `focusablesSelector`, `focusablesFilter` — selector(s) for targets. Same as in `$.freefocus`. no default.
   - `targets` - jQuery object containing 'focusable' elements. no default
+    You should supply either focusablesSelector/Filter (preferred if you use nav-*) or explicit targets.
   - `debug` - print weighting information over targets. default: `false`
   - `trigger` - event to trigger on selected target. default: `'focus'`
-  - `preTrigger` - event to trigger on selected target before the `trigger` one. default: none
+  - `preTrigger` - event to trigger on selected target before the `trigger` one. default: `false` (don't trigger)
     Useful if `trigger` is `focus` to move the next focused element into view to avoid native behavior.
   - `useNavProps` - respect `nav-*` directional focus navigation style properties. default: `true`
   - `maxDistance` - maximum distance to element to still consider moving to it. default: `Infinity`
@@ -140,7 +148,9 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
     if ($.freefocus.moves[options.move] === null)
       throw new Error('Unknown move direction "' + options.move + '"');
-    if (!(options.targets instanceof $))
+    if (!options.targets && !options.focusablesSelector)
+      throw new Error('Options should contain either focusablesSelector or targets');
+    if (options.targets && !(options.targets instanceof $))
       throw new Error('Argument targets should be a jQuery object');
     if (this.size() > 1)
       throw new Error('Can\'t move from multiple elements');
@@ -186,16 +196,17 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     focusablesSelector: [
                           'a[href]',
                           'area[href]',
-                          'input:not([disabled])',
-                          'select:not([disabled])',
-                          'textarea:not([disabled])',
-                          'button:not([disabled])',
+                          'input:enabled',
+                          'select:enabled',
+                          'textarea:enabled',
+                          'button:enabled',
                           'iframe',
                           'object',
                           'embed',
                           '*[tabindex]',
                           '*[contenteditable]'
                         ].join(', '),
+    focusablesFilter: ':visible',
     focusedSelector: ':focus',
     hoverFocus: false,
     throttle: false
@@ -237,10 +248,12 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     if (to.indexOf('#') !== 0)
       throw new Error('Invalid nav-' + options.move + ' selector "' + to + '": only #id allowed.');
 
-    if (!$(to).is(':visible'))
+    var target = $(to);
+
+    if (options.focusablesFilter && !target.is(options.focusablesFilter))
       return;
 
-    return $(to);
+    return target;
   }
 
   function parseStyleString(style) {
@@ -298,7 +311,16 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     var minDistance = Infinity;
     var $resultEl = null;
 
-    options.targets.each(function () {
+    var targets;
+    if (options.targets) {
+      targets = options.targets;
+    } else {
+      targets = $(options.focusablesSelector);
+      if (options.focusablesFilter)
+        targets = targets.filter(options.focusablesFilter);
+    }
+
+    targets.each(function () {
       var $toEl = $(this);
 
       // Skip currently focused element
@@ -451,8 +473,11 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     return Math.min(Math.max(val, min), max);
   }
 
-  function cacheFocusables(selector) {
-    $(selector).filter(':visible').each(function () {
+  function cacheFocusables(options) {
+    var targets = $(options.focusablesSelector);
+    if (options.focusablesFilter)
+      targets = targets.filter(options.focusablesFilter);
+    targets.each(function () {
       getElementBox($(this), true);
     });
   }
