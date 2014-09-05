@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.6.0
+jQuery.Freefocus 0.7.0
 
 Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -17,10 +17,6 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   Options:
 
-  - `focusablesSelector` - selector for keyboard navigation targets. default: a long selector describing all focusable options in web browsers.
-    You may want to provide something shorter to improve performance or use `:focusable` from jQuery UI.
-  - `focusablesFilter` — selector that filters targets after they were selected using `focusablesSelector`.
-    Separated for performance reasons. default: `':visible'`
   - `focusedSelector` - selector for currently focused (or active) element. default: `':focus'`
   - `hoverFocus` - focus target elements on mouse enter. default: `false`
   - `throttle` - throttle key input for specified time (in milliseconds).
@@ -57,11 +53,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     setupOptions = $.extend({}, $.freefocus.setupOptions, setupOptions);
 
     var keyHandler = function (move) {
-      var options = $.extend({}, moveOptions, {
-        move: move,
-        focusablesSelector: setupOptions.focusablesSelector,
-        focusablesFilter: setupOptions.focusablesFilter
-      });
+      var options = $.extend({}, moveOptions, { move: move });
 
       $(setupOptions.focusedSelector).freefocus(options);
     };
@@ -82,7 +74,9 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     });
 
     if (setupOptions.hoverFocus) {
-      addHandler('mouseenter', setupOptions.focusablesSelector, function () {
+      if (!moveOptions.focusablesSelector)
+        throw new Error('focusablesSelector is required for hoverFocus');
+      addHandler('mouseenter', moveOptions.focusablesSelector, function () {
         var trigger = (moveOptions || {}).trigger || $.freefocus.moveOptions.trigger;
         var target = $(this);
         if (setupOptions.focusablesFilter)
@@ -101,7 +95,11 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   Options:
 
   - `move` - move direction: `left` | `right` | `up` | `down`. no default
-  - `focusablesSelector`, `focusablesFilter` — selector(s) for targets. Same as in `$.freefocus`. no default.
+  - `focusablesSelector` - selector for navigation targets. default: a long selector describing all focusable options in web browsers.
+    You may want to provide something shorter to improve performance or use `:focusable` from jQuery UI.
+  - `focusablesFilter` — selector that filters targets after they were selected using `focusablesSelector`.
+    Separated for performance reasons. default: `':visible'`
+  - `focusablesContext` — element or selector, conext for navigation targets search. default: `undefined`
   - `targets` - jQuery object containing 'focusable' elements. no default
     You should supply either focusablesSelector/Filter (preferred if you use nav-*) or explicit targets.
   - `debug` - print weighting information over targets. default: `false`
@@ -185,14 +183,6 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   */
 
   $.freefocus.moveOptions = {
-    trigger: 'focus',
-    preTrigger: false,
-    debug: false,
-    useNavProps: true,
-    maxDistance: Infinity
-  };
-
-  $.freefocus.setupOptions = {
     focusablesSelector: [
                           'a[href]',
                           'area[href]',
@@ -207,6 +197,15 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
                           '*[contenteditable]'
                         ].join(', '),
     focusablesFilter: ':visible',
+    focusablesContext: undefined,
+    trigger: 'focus',
+    preTrigger: false,
+    debug: false,
+    useNavProps: true,
+    maxDistance: Infinity
+  };
+
+  $.freefocus.setupOptions = {
     focusedSelector: ':focus',
     hoverFocus: false,
     throttle: false
@@ -315,7 +314,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     if (options.targets) {
       targets = options.targets;
     } else {
-      targets = $(options.focusablesSelector);
+      targets = $(options.focusablesSelector, options.focusablesContext);
       if (options.focusablesFilter)
         targets = targets.filter(options.focusablesFilter);
     }
@@ -474,7 +473,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   }
 
   function cacheFocusables(options) {
-    var targets = $(options.focusablesSelector);
+    var targets = $(options.focusablesSelector, options.focusablesContext);
     if (options.focusablesFilter)
       targets = targets.filter(options.focusablesFilter);
     targets.each(function () {

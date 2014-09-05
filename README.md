@@ -45,10 +45,6 @@ Set up keyboard navigation.
 
 Options:
 
-- `focusablesSelector` - selector for keyboard navigation targets. default: a long selector describing all focusable options in web browsers.
-  You may want to provide something shorter to improve performance or use `:focusable` if you use jQuery UI.
-- `focusablesFilter` — selector that filters targets after they were selected using `focusablesSelector`.
-  Separated for performance reasons. default: `':visible'`
 - `focusedSelector` - selector for currently focused (or active) element. default: `':focus'`
 - `hoverFocus` - focus target elements on mouse enter. default: `false`
 - `throttle` - throttle key input for specified time (in milliseconds).
@@ -64,7 +60,7 @@ Remove previously set keyboard navigation.
 
 ### `$.freefocus('cache', options)`
 
-Compute and cache dimension information for focusable elements. Options: `focusablesSelector`, `focusablesFilter`
+Compute and cache dimension information for focusable elements. Options: `focusablesSelector`, `focusablesFilter`, `focusablesContext`
 
 
 ### `$.fn.freefocus({options...})`
@@ -74,7 +70,11 @@ Move "focus" from active element to one of the targets by triggering specified e
 Options:
 
 - `move` - move direction: `left` | `right` | `up` | `down`. no default
-- `focusablesSelector`, `focusablesFilter` — selector(s) for targets. Same as in `$.freefocus`. no default.
+- `focusablesSelector` - selector for navigation targets. default: a long selector describing all focusable options in web browsers.
+  You may want to provide something shorter to improve performance or use `:focusable` from jQuery UI.
+- `focusablesFilter` — selector that filters targets after they were selected using `focusablesSelector`.
+  Separated for performance reasons. default: `':visible'`
+- `focusablesContext` — element or selector, conext for navigation targets search. default: `undefined`
 - `targets` - jQuery object containing "focusable" elements. no default
   You should supply either focusablesSelector/Filter (preferred if you use nav-*) or explicit targets.
 - `debug` - print weighting information over targets. default: `false`
@@ -107,6 +107,7 @@ FreeFocus implements [CSS3 UI `nav-*` directional focus navigation](http://www.w
 
 ## Changelog
 
+- 0.7.0 Added `focusablesContext` option. Moved `focusables*` options from `setupOptions` to `moveOptions`.
 - 0.6.0 Added `focusablesFilter` setup option. Added optional `focusablesSelector` and `focusablesFilter` move options which has better performance over `targets` when used with `nav-*` props.
 - 0.5.4 Added special `none` value for nav-* properties.
 - 0.5.3 Fixed the bug when freefocus tries to focus invisible element if it's found by CSS3 directional props.
