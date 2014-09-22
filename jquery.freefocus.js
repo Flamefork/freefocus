@@ -234,18 +234,23 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   $.freefocus.focusPoint = {};
 
   function targetFromNavProps($el, options) {
-    var to =
-      $el.get(0).style['nav' + (options.move.charAt(0).toUpperCase()) + (options.move.slice(1))] ||
-      parseStyleString($el.attr('style') || '')['nav-' + options.move];
+    var to = $el.get(0).style['nav' + (options.move.charAt(0).toUpperCase()) + (options.move.slice(1))];
 
-    if (!to)
+    if (to && to.length) {
+      // Toshiba adds garbage to the end
+      to = to.split(' ')[0];
+    } else {
+      to = parseStyleString($el.attr('style') || '')['nav-' + options.move];
+    }
+
+    if (!to || !to.length)
       return;
 
     if (to === 'none')
       return $();
 
     if (to.indexOf('#') !== 0)
-      throw new Error('Invalid nav-' + options.move + ' selector "' + to + '": only #id allowed.');
+      to = '#' + to;
 
     var target = $(to);
 
