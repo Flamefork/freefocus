@@ -128,7 +128,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   $.fn.freefocus = function (options) {
     if (options === 'dimensions') {
-      var box = getElementBox(this, true);
+      var box = getElementBox(this, true, false);
       return {
         left: box.x1,
         top: box.y1,
@@ -266,7 +266,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   }
 
   function updateFocusPoint($el, direction, cache) {
-    var box = getElementBox($el, cache);
+    var box = getElementBox($el, cache, cache);
     var fp = $.freefocus.focusPoint;
 
     // If the element was focused by freefocus,
@@ -283,7 +283,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   }
 
   function moveFocusPoint($el, direction, debug, cache) {
-    var box = getElementBox($el, cache);
+    var box = getElementBox($el, cache, cache);
     var fp = $.freefocus.focusPoint;
 
     fp.$el = $el;
@@ -301,7 +301,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   }
 
   function targetWithMinDistance($fromEl, options) {
-    var fromBox = boxInDirection(getElementBox($fromEl, options.cache), options.move);
+    var fromBox = boxInDirection(getElementBox($fromEl, options.cache, options.cache), options.move);
 
     if (options.debug) {
       putDot(coordsFromDirection($.freefocus.focusPoint.updatedInDirection, options.move), '#0f0', 'exit focus point for ' + $fromEl.html());
@@ -326,7 +326,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
       if ($toEl.is($fromEl))
         return;
 
-      var toBox = boxInDirection(getElementBox($toEl, options.cache), options.move);
+      var toBox = boxInDirection(getElementBox($toEl, options.cache, options.cache), options.move);
 
       // Skip elements that are not in the direction of movement
       if (toBox.fwd2 <= fromBox.fwd2)
@@ -405,15 +405,16 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     };
   }
 
-  function getElementBox($el, cache) {
-    if (!cache)
-      return computeElementBox($el);
+  function getElementBox($el, readCache, writeCache) {
+    var box;
 
-    var box = $el.data('freefocus-dimensions');
-    if (!box) {
+    if (readCache)
+      box = $el.data('freefocus-dimensions');
+    if (!box)
       box = computeElementBox($el);
+    if (writeCache)
       $el.data('freefocus-dimensions', box);
-    }
+
     return box;
   }
 
@@ -477,7 +478,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     if (options.focusablesFilter)
       targets = targets.filter(options.focusablesFilter);
     targets.each(function () {
-      getElementBox($(this), true);
+      getElementBox($(this), true, true);
     });
   }
 
