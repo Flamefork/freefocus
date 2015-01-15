@@ -27,7 +27,7 @@
   }
 
   #p00 { left:  39px; top:  38px; width: 166px; height: 58px; line-height: 58px; }
-  #p01 { left:  39px; top: 106px; width:  54px; height: 48px; line-height: 48px; }
+  #p01 { left:  39px; top: 106px; width:  54px; height: 48px; line-height: 12px; padding-top: 10px }
   #p02 { left:  99px; top: 106px; width:  55px; height: 47px; line-height: 47px; }
   #p03 { left:  39px; top: 178px; width:  51px; height: 50px; line-height: 50px; }
   #p04 { left: 100px; top: 178px; width:  51px; height: 50px; line-height: 50px; }
@@ -52,12 +52,15 @@
   #p23 { left: 229px; top: 439px; width: 107px; height: 49px; line-height: 49px; }
   #p24 { left: 347px; top: 437px; width:  39px; height: 51px; line-height: 51px; }
 
-  #p15, #p16 { font-size: 10px; }
+  #p01, #p15, #p16 { font-size: 10px; }
 </style>
 
 <div class="grid">
+  <div class="invalidTarget"></div>
+  <div tabindex="1" class="hiddenTarget" style="display: none"></div>
+
   <div id="p00" tabindex="1"><span>00</span>1&darr;</div>
-  <div id="p01" tabindex="1"><span>01</span></div>
+  <div id="p01" tabindex="1" style="nav-down: #p11; nav-left: #p08;"><span>01</span>&larr;#p08<br/>&darr;#p11</div>
   <div id="p02" tabindex="1"><span>02</span>2&darr;</div>
   <div id="p03" tabindex="1"><span>03</span>4&darr;</div>
   <div id="p04" tabindex="1"><span>04</span>3&larr;</div>
@@ -66,7 +69,7 @@
   <div id="p07" tabindex="1"><span>07</span>7&darr;</div>
   <div id="p08" tabindex="1"><span>08</span></div>
   <div id="p09" tabindex="1"><span>09</span>8&rarr;</div>
-  <div id="p10" tabindex="1"><span>10</span></div>
+  <div id="p10" tabindex="1" class="target10"><span>10</span></div>
   <div id="p11" tabindex="1"><span>11</span></div>
   <div id="p12" tabindex="1"><span>12</span>13&darr; 16&darr; 19&darr;</div>
   <div id="p13" tabindex="1"><span>13</span>12&uarr; 14&rarr;</div>

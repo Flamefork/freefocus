@@ -94,9 +94,16 @@ Get element dimensions `{top, left, width, height}`. Uses cache, if it's enabled
 
 ### `$.fn.freefocus('moved')`
 
-Clears cached dimension info for element. Should be triggered for every element that is moved, if using `cache`.
+Clear cached dimension info for element. Should be triggered for every element that is moved, if using `cache`.
 
-### nav-* properties
+
+
+### `$.fn.freefocus('nav', {hints})`
+
+Set hints (see next chapter for details).
+Example: `$(element).freefocus('nav', { left: 'none', right: '#someId' })`
+
+### nav-* hints
 
 Allows for fine-grained control over focus movements.
 FreeFocus implements [CSS3 UI `nav-*` directional focus navigation](http://www.w3.org/TR/css3-ui/#nav-dir) specification with few differences:
@@ -104,6 +111,13 @@ FreeFocus implements [CSS3 UI `nav-*` directional focus navigation](http://www.w
 - targeting frames is not supported
 - added special value `none`, which disables focus movement in the specified direction. e.g. `nav-left: none;` means that pressing left arrow does nothing
 - added reading JavaScript counterparts to css properties: `navLeft`, `navRight`, `navUp`, `navDown`. e.g. `domNode.navLeft = '#someId';`
+- full jQuery selector syntax allowed. In case of multiple elements matching the selector, FreeFocus would navigate to the first that is really focusable (using `focusablesSelector` and `focusablesFilter`)
+
+Hints could be specified using
+
+- HTML tags `style` attribute: `nav-left`, `nav-right`, `nav-up`, `nav-down`
+- JavaScript counterparts to CSS properties: `navLeft`, `navRight`, `navUp`, `navDown`
+- FreeFocus API over jQuery data: `$.fn.freefocus('nav')`
 
 ## Changelog
 

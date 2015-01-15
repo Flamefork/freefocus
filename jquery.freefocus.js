@@ -120,13 +120,20 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   Get element dimensions `{top, left, width, height}`. Uses cache, if it's enabled.
 
+
   ### .freefocus('moved')
 
-  Clears cache for element.
+  Clear cached dimension info for element. Should be triggered for every element that is moved, if using `cache`.
+
+
+  ### `$.fn.freefocus('nav', {hints})`
+
+  Set hints (see next chapter for details).
+  Example: `$(element).freefocus('nav', { left: 'none', right: '#someId' })`
 
   */
 
-  $.fn.freefocus = function (options) {
+  $.fn.freefocus = function (options, navHints) {
     if (options === 'dimensions') {
       var box = getElementBox(this, true, false);
       return {
@@ -139,6 +146,11 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
     if (options === 'moved') {
       this.data('freefocus-dimensions', null);
+      return;
+    }
+
+    if (options === 'nav') {
+      this.data('freefocus-nav', navHints);
       return;
     }
 
@@ -233,31 +245,65 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   $.freefocus.focusPoint = {};
 
-  function targetFromNavProps($el, options) {
-    var to = $el.get(0).style['nav' + (options.move.charAt(0).toUpperCase()) + (options.move.slice(1))];
-
-    if (to && to.length) {
-      // Toshiba adds garbage to the end
-      to = to.split(' ')[0];
-    } else {
-      to = parseStyleString($el.attr('style') || '')['nav-' + options.move];
+  $.freefocus.hintSources = [
+    function ($el, options) {
+      var navData = $el.data('freefocus-nav');
+      if (navData) {
+        return navData[options.move];
+      }
+    },
+    function ($el, options) {
+      var propName = 'nav' + (options.move.charAt(0).toUpperCase()) + (options.move.slice(1));
+      return $el.get(0).style[propName];
+    },
+    function ($el, options) {
+      return parseStyleString($el.attr('style') || '')['nav-' + options.move];
     }
+  ];
 
-    if (!to || !to.length)
+  function firstMatch(array, fn) {
+    for (var i = 0; i < array.length; i++) {
+      var result = fn(array[i]);
+      if (result)
+        return result;
+    }
+  }
+
+  function targetFromNavProps($el, options) {
+    var hint = firstMatch($.freefocus.hintSources, function (source) {
+      hint = $.trim(source($el, options));
+      if (hint.length)
+        return hint;
+    });
+
+    if (!hint)
       return;
 
-    if (to === 'none')
-      return $();
+    // Fix Toshiba that removes "#" from the beginning and adds " ''" to the end
+    hint = hint.replace(/^([^#].*) \'\'$/, '#$1');
 
-    if (to.indexOf('#') !== 0)
-      to = '#' + to;
+    // Allow to set explicit order by enumerating selectors
+    return firstMatch(hint.split(','), function (hintItem) {
+      if ($.trim(hintItem) === 'none')
+        return $();
 
-    var target = $(to);
+      var targets;
 
-    if (options.focusablesFilter && !target.is(options.focusablesFilter))
-      return;
+      if (options.targets) {
+        targets = options.targets.filter(hintItem);
+      } else {
+        targets = $(hintItem, options.focusablesContext);
 
-    return target;
+        if (options.focusablesSelector)
+          targets = targets.filter(options.focusablesSelector);
+
+        if (options.focusablesFilter)
+          targets = targets.filter(options.focusablesFilter);
+      }
+
+      if (targets.length)
+        return targets.first();
+    });
   }
 
   function parseStyleString(style) {

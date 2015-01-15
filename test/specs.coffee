@@ -39,15 +39,47 @@ describe "$.fn.freefocus", ->
     preSpy.reset()
     spy.reset()
 
-  it "should move according to directional navigation css properties", ->
-    $('#p10').attr('style', 'nav-down: #p11');
-    $('#p10').freefocus move: 'down', targets: $('.grid>div'), useNavProps: true
-    expect($('#p11')).toBeFocused()
+  describe "should move according to directional navigation hints", ->
 
-  it "should move according to directional navigation style properties", ->
-    $('#p11').get(0).style.navDown = '#p10'
-    $('#p11').freefocus move: 'down', targets: $('.grid>div'), useNavProps: true
-    expect($('#p10')).toBeFocused()
+    it "defined by css properties", ->
+      $('#p01').freefocus move: 'left', targets: $('.grid>div'), useNavProps: true
+      expect($('#p08')).toBeFocused()
+      $('#p01').freefocus move: 'down', targets: $('.grid>div'), useNavProps: true
+      expect($('#p11')).toBeFocused()
+
+    it "defined by css properties set dynamically", ->
+      $('#p10').attr('style', 'nav-down: #p11');
+      $('#p10').freefocus move: 'down', targets: $('.grid>div'), useNavProps: true
+      expect($('#p11')).toBeFocused()
+
+    it "defined by DOM style properties", ->
+      $('#p11').get(0).style.navDown = '#p10'
+      $('#p11').freefocus move: 'down', targets: $('.grid>div'), useNavProps: true
+      expect($('#p10')).toBeFocused()
+
+    it "defined by FreeFocus API", ->
+      $('#p11').freefocus('nav', { down: '#p10' })
+      $('#p11').freefocus move: 'down', targets: $('.grid>div'), useNavProps: true
+      expect($('#p10')).toBeFocused()
+
+    it "corrupted by Toshiba", ->
+      $('#p11').get(0).style.navDown = 'p10 \'\''
+      $('#p11').freefocus move: 'down', targets: $('.grid>div'), useNavProps: true
+      expect($('#p10')).toBeFocused()
+
+    it "using rich jQuery selector syntax", ->
+      $('#p11').get(0).style.navDown = '.grid .target10'
+      $('#p11').freefocus move: 'down', targets: $('.grid>div'), useNavProps: true
+      expect($('.target10')).toBeFocused()
+
+    it "enumerating multiple hints", ->
+      $('#p11').get(0).style.navDown = '.grid .target10, .grid .target02'
+      $('#p11').freefocus move: 'down', targets: $('.grid>div'), useNavProps: true
+      expect($('.target10')).toBeFocused()
+
+      $('#p11').get(0).style.navDown = '.invalidTarget, .hiddenTarget, .grid .target10, .grid .target02'
+      $('#p11').freefocus move: 'down', useNavProps: true
+      expect($('.target10')).toBeFocused()
 
 describe "$.freefocus", ->
   afterEach -> $.freefocus 'remove'
