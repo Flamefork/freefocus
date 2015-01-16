@@ -81,6 +81,12 @@ describe "$.fn.freefocus", ->
       $('#p11').freefocus move: 'down', useNavProps: true
       expect($('.target10')).toBeFocused()
 
+    it "poining to context", ->
+      $('#p11').get(0).style.navRight = '.faraway *'
+      $('#p11').freefocus move: 'right', useNavProps: true
+      expect($('#fw02')).toBeFocused()
+
+
 describe "$.freefocus", ->
   afterEach -> $.freefocus 'remove'
 

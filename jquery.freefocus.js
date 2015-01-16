@@ -174,6 +174,16 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     updateFocusPoint(this, options.move, options.cache);
 
     var to = targetFromNavProps(this, options) || targetWithMinDistance(this, options);
+    if (to) {
+      if (to.length > 1) {
+        to = targetWithMinDistance(this, $.extend({}, options, { targets: to }));
+      } else {
+        // do nothing, we either have the target (via hint, length === 1)
+        // or were explicitly said so ('none' hint, length === 0)
+      }
+    } else {
+      to = targetWithMinDistance(this, options);
+    }
 
     if (!to || !to.length)
       return this; // It's useful to be silent here
@@ -280,7 +290,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
       return;
 
     // Fix Toshiba that removes "#" from the beginning and adds " ''" to the end
-    hint = hint.replace(/^([^#].*) \'\'$/, '#$1');
+    hint = hint.replace(/^([^#].*) ''$/, '#$1');
 
     // Allow to set explicit order by enumerating selectors
     return firstMatch(hint.split(','), function (hintItem) {
@@ -302,7 +312,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
       }
 
       if (targets.length)
-        return targets.first();
+        return targets;
     });
   }
 

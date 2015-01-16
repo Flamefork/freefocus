@@ -1,5 +1,6 @@
 <style>
-  .grid div {
+  .grid div,
+  .faraway div {
     position: absolute;
     box-sizing: border-box;
     background: linear-gradient(to bottom, #fefcea 0%, #f1da36 100%);
@@ -12,7 +13,8 @@
     white-space: nowrap;
   }
 
-  .grid div span {
+  .grid div span,
+  .faraway div span {
     position: absolute;
     top: 2px;
     left: 3px;
@@ -20,7 +22,8 @@
     line-height: 8px;
   }
 
-  .grid div:focus {
+  .grid div:focus,
+  .faraway div:focus {
     outline: none;
     background: #bd6500;
     color: #fff;
@@ -53,10 +56,13 @@
   #p24 { left: 347px; top: 437px; width:  39px; height: 51px; line-height: 51px; }
 
   #p01, #p15, #p16 { font-size: 10px; }
+
+  #fw01 { left: 600px; top: 138px; width: 166px; height: 58px; line-height: 58px; }
+  #fw02 { left: 600px; top: 338px; width: 166px; height: 58px; line-height: 58px; }
 </style>
 
 <div class="grid">
-  <div class="invalidTarget"></div>
+  <div class="invalidTarget" style="border: none;"></div>
   <div tabindex="1" class="hiddenTarget" style="display: none"></div>
 
   <div id="p00" tabindex="1"><span>00</span>1&darr;</div>
@@ -84,4 +90,9 @@
   <div id="p22" tabindex="1"><span>22</span>25&darr;</div>
   <div id="p23" tabindex="1"><span>23</span>26&rarr;</div>
   <div id="p24" tabindex="1"><span>24</span>27</div>
+</div>
+
+<div class="faraway">
+  <div id="fw01" tabindex="1"><span>fw01</span></div>
+  <div id="fw02" tabindex="1"><span>fw02</span></div>
 </div>
