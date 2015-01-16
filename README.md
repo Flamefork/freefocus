@@ -112,6 +112,7 @@ FreeFocus implements [CSS3 UI `nav-*` directional focus navigation](http://www.w
 - added special value `none`, which disables focus movement in the specified direction. e.g. `nav-left: none;` means that pressing left arrow does nothing
 - added reading JavaScript counterparts to css properties: `navLeft`, `navRight`, `navUp`, `navDown`. e.g. `domNode.navLeft = '#someId';`
 - full jQuery selector syntax allowed. In case of multiple elements matching the selector, FreeFocus would navigate to the first that is really focusable (using `focusablesSelector` and `focusablesFilter`)
+- if the hint targets multiple elements, FreeFoucs will search for the best target using spacial navigation rules.
 
 Hints could be specified using
 
@@ -121,6 +122,7 @@ Hints could be specified using
 
 ## Changelog
 
+- 0.8.0 Added jQuery syntax support, added `$.fn.freefocus('nav')` method
 - 0.7.0 Added `focusablesContext` option. Moved `focusables*` options from `setupOptions` to `moveOptions`.
 - 0.6.0 Added `focusablesFilter` setup option. Added optional `focusablesSelector` and `focusablesFilter` move options which has better performance over `targets` when used with `nav-*` props.
 - 0.5.4 Added special `none` value for nav-* properties.
