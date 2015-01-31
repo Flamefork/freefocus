@@ -123,6 +123,7 @@ Hints could be specified using
 
 ## Changelog
 
+- 0.8.3 Supported merging nav hints
 - 0.8.2 Changed target separator to `;`
 - 0.8.1 Added `data-nav-*` attributes support
 - 0.8.0 Added jQuery syntax support, added `$.fn.freefocus('nav')` method

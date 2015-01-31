@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.8.2
+jQuery.Freefocus 0.8.3
 
 Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -149,7 +149,10 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     }
 
     if (options === 'nav') {
-      this.data('freefocus-nav', navHints);
+      var self = this;
+      $.each(navHints, function (k, v) {
+        self.data('nav-' + k, v);
+      });
       return;
     }
 
@@ -255,12 +258,6 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   $.freefocus.focusPoint = {};
 
   $.freefocus.hintSources = [
-    function ($el, options) {
-      var navData = $el.data('freefocus-nav');
-      if (navData) {
-        return navData[options.move];
-      }
-    },
     function ($el, options) {
       return $el.data('nav-' + options.move);
     },
