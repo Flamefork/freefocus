@@ -81,7 +81,6 @@ Options:
 - `trigger` - event to trigger on selected target. default: `'focus'`
 - `preTrigger` - event to trigger on selected target before the `trigger` one. default: `false` (don't trigger)
   Useful if `trigger` is `focus` to move the next focused element into view to avoid native behavior.
-- `useNavProps` - respect `nav-*` directional focus navigation style properties. default: `true`
 - `maxDistance` - maximum distance to element to still consider moving to it. default: `Infinity`
 - `cache` - cache dimension information for element. default: `false`
   You'll need to manually reset cache for moved elements by using `$(element).freefocus('moved')`
@@ -112,7 +111,8 @@ FreeFocus implements [CSS3 UI `nav-*` directional focus navigation](http://www.w
 - added special value `none`, which disables focus movement in the specified direction. e.g. `nav-left: none;` means that pressing left arrow does nothing
 - added reading JavaScript counterparts to css properties: `navLeft`, `navRight`, `navUp`, `navDown`. e.g. `domNode.navLeft = '#someId';`
 - full jQuery selector syntax allowed. In case of multiple elements matching the selector, FreeFocus would navigate to the first that is really focusable (using `focusablesSelector` and `focusablesFilter`)
-- if the hint targets multiple elements, FreeFoucs will search for the best target using spacial navigation rules.
+- if the hint targets multiple elements, FreeFoucs will search for the best target using spacial navigation rules
+- listing multiple hints separated by `;` allows to set priorities: they will be matched in a listed order one by one. first that matches any vaild tagret would be taken
 
 Hints could be specified using
 
@@ -123,6 +123,7 @@ Hints could be specified using
 
 ## Changelog
 
+- 0.8.2 Changed target separator to `;`
 - 0.8.1 Added `data-nav-*` attributes support
 - 0.8.0 Added jQuery syntax support, added `$.fn.freefocus('nav')` method
 - 0.7.0 Added `focusablesContext` option. Moved `focusables*` options from `setupOptions` to `moveOptions`.

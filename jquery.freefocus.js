@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.8.1
+jQuery.Freefocus 0.8.2
 
 Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -106,7 +106,6 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   - `trigger` - event to trigger on selected target. default: `'focus'`
   - `preTrigger` - event to trigger on selected target before the `trigger` one. default: `false` (don't trigger)
     Useful if `trigger` is `focus` to move the next focused element into view to avoid native behavior.
-  - `useNavProps` - respect `nav-*` directional focus navigation style properties. default: `true`
   - `maxDistance` - maximum distance to element to still consider moving to it. default: `Infinity`
   - `cache` - cache dimension information for element. default: `false`.
     You'll need to manually reset cache for moved elements by using `$(element).freefocus('moved')`
@@ -173,9 +172,10 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
     updateFocusPoint(this, options.move, options.cache);
 
-    var to = targetFromNavProps(this, options) || targetWithMinDistance(this, options);
+    var to = targetFromHints(this, options);
     if (to) {
       if (to.length > 1) {
+        // choose the best option from target set
         to = targetWithMinDistance(this, $.extend({}, options, { targets: to }));
       } else {
         // do nothing, we either have the target (via hint, length === 1)
@@ -223,7 +223,6 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     trigger: 'focus',
     preTrigger: false,
     debug: false,
-    useNavProps: true,
     maxDistance: Infinity
   };
 
@@ -282,7 +281,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     }
   }
 
-  function targetFromNavProps($el, options) {
+  function targetFromHints($el, options) {
     var hint = firstMatch($.freefocus.hintSources, function (source) {
       hint = $.trim(source($el, options));
       if (hint.length)
@@ -296,7 +295,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
     hint = hint.replace(/^([^#].*) ''$/, '#$1');
 
     // Allow to set explicit order by enumerating selectors
-    return firstMatch(hint.split(','), function (hintItem) {
+    return firstMatch(hint.split(';'), function (hintItem) {
       if ($.trim(hintItem) === 'none')
         return $();
 
