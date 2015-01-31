@@ -119,9 +119,11 @@ Hints could be specified using
 - HTML tags `style` attribute: `nav-left`, `nav-right`, `nav-up`, `nav-down`
 - JavaScript counterparts to CSS properties: `navLeft`, `navRight`, `navUp`, `navDown`
 - FreeFocus API over jQuery data: `$.fn.freefocus('nav')`
+- data attributes: `<button data-nav-left="selector">`
 
 ## Changelog
 
+- 0.8.1 Added `data-nav-*` attributes support
 - 0.8.0 Added jQuery syntax support, added `$.fn.freefocus('nav')` method
 - 0.7.0 Added `focusablesContext` option. Moved `focusables*` options from `setupOptions` to `moveOptions`.
 - 0.6.0 Added `focusablesFilter` setup option. Added optional `focusablesSelector` and `focusablesFilter` move options which has better performance over `targets` when used with `nav-*` props.

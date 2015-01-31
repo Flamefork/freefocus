@@ -1,6 +1,6 @@
 {
   "name": "jquery-freefocus",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "main": "dist/jquery.freefocus.js",
   "dependencies": {},
   "devDependencies": {

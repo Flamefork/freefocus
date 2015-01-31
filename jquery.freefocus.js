@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.8.0
+jQuery.Freefocus 0.8.1
 
 Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -261,6 +261,9 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
       if (navData) {
         return navData[options.move];
       }
+    },
+    function ($el, options) {
+      return $el.data('nav-' + options.move);
     },
     function ($el, options) {
       var propName = 'nav' + (options.move.charAt(0).toUpperCase()) + (options.move.slice(1));

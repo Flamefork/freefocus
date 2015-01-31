@@ -62,6 +62,10 @@ describe "$.fn.freefocus", ->
       $('#p11').freefocus move: 'down', targets: $('.grid>div'), useNavProps: true
       expect($('#p10')).toBeFocused()
 
+    it "defined by jQuery data", ->
+      $('#p08').freefocus move: 'down', targets: $('.grid>div'), useNavProps: true
+      expect($('#p11')).toBeFocused()
+
     it "corrupted by Toshiba", ->
       $('#p11').get(0).style.navDown = 'p10 \'\''
       $('#p11').freefocus move: 'down', targets: $('.grid>div'), useNavProps: true
