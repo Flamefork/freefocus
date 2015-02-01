@@ -96,11 +96,15 @@ Get element dimensions `{top, left, width, height}`. Uses cache, if it's enabled
 Clear cached dimension info for element. Should be triggered for every element that is moved, if using `cache`.
 
 
-
-### `$.fn.freefocus('nav', {hints})`
+### `$.fn.freefocus('nav', hints)`
 
 Set hints (see next chapter for details).
-Example: `$(element).freefocus('nav', { left: 'none', right: '#someId' })`
+
+Hints argument is either:
+
+- hints object - example: `{ left: 'none', right: '#someId' }`. no default
+- `clear` - special string value, clear all nav hints from the element
+
 
 ### nav-* hints
 
@@ -123,6 +127,7 @@ Hints could be specified using
 
 ## Changelog
 
+- 0.8.4 Supported clearing nav hints
 - 0.8.3 Supported merging nav hints
 - 0.8.2 Changed target separator to `;`
 - 0.8.1 Added `data-nav-*` attributes support

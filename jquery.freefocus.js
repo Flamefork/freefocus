@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.8.3
+jQuery.Freefocus 0.8.4
 
 Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -125,10 +125,14 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
   Clear cached dimension info for element. Should be triggered for every element that is moved, if using `cache`.
 
 
-  ### `$.fn.freefocus('nav', {hints})`
+  ### `$.fn.freefocus('nav', hints)`
 
   Set hints (see next chapter for details).
-  Example: `$(element).freefocus('nav', { left: 'none', right: '#someId' })`
+
+  Hints is either:
+
+  - opbject: `{ left: 'none', right: '#someId' }`
+  - special string value `clear`, which would clear all nav hints from the element
 
   */
 
@@ -150,9 +154,15 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
     if (options === 'nav') {
       var self = this;
-      $.each(navHints, function (k, v) {
-        self.data('nav-' + k, v);
-      });
+      if (navHints === 'clear') {
+        $.each($.freefocus.moves, function (k) {
+          self.removeAttr('data-nav-' + k);
+        });
+      } else {
+        $.each(navHints, function (k, v) {
+          self.attr('data-nav-' + k, v);
+        });
+      }
       return;
     }
 
@@ -259,7 +269,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
   $.freefocus.hintSources = [
     function ($el, options) {
-      return $el.data('nav-' + options.move);
+      return $el.attr('data-nav-' + options.move);
     },
     function ($el, options) {
       var propName = 'nav' + (options.move.charAt(0).toUpperCase()) + (options.move.slice(1));

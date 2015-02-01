@@ -62,7 +62,19 @@ describe "$.fn.freefocus", ->
       $('#p11').freefocus move: 'down', targets: $('.grid>div')
       expect($('#p10')).toBeFocused()
 
-    it "defined by jQuery data", ->
+    it "defined by multiple FreeFocus API calls", ->
+      $('#p11').freefocus('nav', { down: '#p10', right: '#p24' })
+      $('#p11').freefocus('nav', { right: '#p07' })
+      $('#p11').freefocus move: 'down', targets: $('.grid>div')
+      expect($('#p10')).toBeFocused()
+
+    it " but ignore cleared by FreeFocus API", ->
+      $('#p10').freefocus('nav', { right: '#p24' })
+      $('#p10').freefocus('nav', 'clear')
+      $('#p10').freefocus move: 'right', targets: $('.grid>div')
+      expect($('#p11')).toBeFocused()
+
+    it "defined by data attribute", ->
       $('#p08').freefocus move: 'down', targets: $('.grid>div')
       expect($('#p11')).toBeFocused()
 
