@@ -127,6 +127,7 @@ Hints could be specified using
 
 ## Changelog
 
+- 0.8.5 Fixed contiguous target navigation
 - 0.8.4 Supported clearing nav hints
 - 0.8.3 Supported merging nav hints
 - 0.8.2 Changed target separator to `;`

@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.8.4
+jQuery.Freefocus 0.8.5
 
 Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -399,7 +399,7 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
       var toBox = boxInDirection(getElementBox($toEl, options.cache, options.cache), options.move);
 
       // Skip elements that are not in the direction of movement
-      if (toBox.fwd1 <= fromBox.fwd2)
+      if (toBox.fwd1 < fromBox.fwd2)
         return;
 
       var dist = distance(fromBox, toBox);

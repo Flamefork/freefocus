@@ -23,6 +23,11 @@ describe "$.fn.freefocus", ->
     $('#p11').freefocus move: 'right', targets: $('bogus')
     expect($('#p11')).toBeFocused()
 
+  it "should not ignore contiguous targets", ->
+    $('#fw03').trigger('focus')
+    $('#fw03').freefocus move: 'down', targets: $('.faraway>div')
+    expect($('#fw04')).toBeFocused()
+
   it "should trigger specified event", ->
     spy = spyOnEvent('#p08', 'navigate')
     $('#p09').freefocus move: 'left', targets: $('.grid>div'), trigger: 'navigate'
