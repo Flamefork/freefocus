@@ -1,8 +1,8 @@
 /*
 
-jQuery.Freefocus 0.8.5
+jQuery.Freefocus 0.8.6
 
-Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
+Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
 
 */
 
@@ -306,19 +306,13 @@ Copyright (c) 2013-2014 Ilia Ablamonov. Licensed under the MIT license.
       if ($.trim(hintItem) === 'none')
         return $();
 
-      var targets;
+      var targets = $(hintItem);
 
-      if (options.targets) {
-        targets = options.targets.filter(hintItem);
-      } else {
-        targets = $(hintItem, options.focusablesContext);
+      if (options.focusablesSelector)
+        targets = targets.filter(options.focusablesSelector);
 
-        if (options.focusablesSelector)
-          targets = targets.filter(options.focusablesSelector);
-
-        if (options.focusablesFilter)
-          targets = targets.filter(options.focusablesFilter);
-      }
+      if (options.focusablesFilter)
+        targets = targets.filter(options.focusablesFilter);
 
       if (targets.length)
         return targets;
