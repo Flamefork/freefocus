@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.8.6
+jQuery.Freefocus 0.8.7
 
 Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -464,8 +464,8 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     return {
       x1: offset.left,
       y1: offset.top,
-      x2: offset.left + $el.outerWidth(),
-      y2: offset.top + $el.outerHeight()
+      x2: offset.left + $el.innerWidth(),
+      y2: offset.top + $el.innerHeight()
     };
   }
 
