@@ -18,13 +18,17 @@ describe "$.fn.freefocus", ->
     $('#p08').freefocus move: 'left', targets: $('.grid>div')
     expect($('#p08')).toBeFocused() # expect it to stay focused
 
+  it "should not move if hint is none", ->
+    $('#p08').trigger('focus')
+    $('#p08').freefocus move: 'right', targets: $('.grid>div')
+    expect($('#p08')).toBeFocused()
+
   it "should ignore empty targets", ->
     $('#p11').trigger('focus')
     $('#p11').freefocus move: 'right', targets: $('bogus')
     expect($('#p11')).toBeFocused()
 
   it "should not ignore contiguous targets", ->
-    $('#fw03').trigger('focus')
     $('#fw03').freefocus move: 'down', targets: $('.faraway>div')
     expect($('#fw04')).toBeFocused()
 
