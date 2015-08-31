@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.8.7
+jQuery.Freefocus 0.8.8
 
 Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -204,9 +204,11 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     moveFocusPoint(to, options.move, options.debug, options.cache);
 
     if (options.preTrigger) {
-      to.trigger(options.preTrigger);
+      triggerEvent(to.get(0), options.preTrigger);
     }
-    to.trigger(options.trigger);
+    if (options.trigger) {
+      triggerEvent(to.get(0), options.trigger);
+    }
 
     return this;
   };
@@ -587,5 +589,24 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
       $document.off.apply($document, args);
     });
     eventHandlers = [];
+  }
+
+  /*
+
+  Trigger event optimization:
+
+  */
+
+  function triggerEvent(target, eventName) {
+    if (document.createEvent && target.dispatchEvent && eventName !== 'focus') {
+      // Native dispatchEvent is way faster than $.fn.trigger
+      // Focus is a special event, handled natively by jQuery itself
+      var event = document.createEvent('Event');
+      event.initEvent(eventName, true, true);
+      target.dispatchEvent(event);
+    } else {
+      // Safe fallback
+      $(target).trigger($.Event(eventName));
+    }
   }
 })(jQuery);

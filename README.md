@@ -127,6 +127,7 @@ Hints could be specified using
 
 ## Changelog
 
+- 0.8.8 Optimized custom event triggering
 - 0.8.7 Element dimensions doesn't include border anymore
 - 0.8.6 Allowed nav hints to target outside `focusablesContext`
 - 0.8.5 Fixed contiguous target navigation
