@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.8.8
+jQuery.Freefocus 0.9.0
 
 Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -210,7 +210,7 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
       triggerEvent(to.get(0), options.trigger);
     }
 
-    return this;
+    return to;
   };
 
   /*

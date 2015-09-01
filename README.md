@@ -127,6 +127,7 @@ Hints could be specified using
 
 ## Changelog
 
+- 0.9.0 Freefocus returns focus target (or self if no target found) instead of self
 - 0.8.8 Optimized custom event triggering
 - 0.8.7 Element dimensions doesn't include border anymore
 - 0.8.6 Allowed nav hints to target outside `focusablesContext`

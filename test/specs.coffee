@@ -48,6 +48,16 @@ describe "$.fn.freefocus", ->
     preSpy.reset()
     spy.reset()
 
+  it "should return the target", ->
+    target = $('#p09').freefocus move: 'left', targets: $('.grid>div')
+    expect(target).toBe($('#p08'))
+    target = $('#p09').freefocus move: 'right', targets: $('.grid>div')
+    expect(target).toBe($('#p21'))
+
+  it "should return self if no target found", ->
+    target = $('#p09').freefocus move: 'right', targets: $('bogus')
+    expect(target).toBe($('#p09'))
+
   describe "should move according to directional navigation hints", ->
 
     it "defined by css properties", ->
