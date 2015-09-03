@@ -58,6 +58,12 @@ describe "$.fn.freefocus", ->
     target = $('#p09').freefocus move: 'right', targets: $('bogus')
     expect(target).toBe($('#p09'))
 
+  it "should use targets function", ->
+    $('#p09').freefocus move: 'left', targets: -> $('.grid>div')
+    expect($('#p08')).toBeFocused()
+    $('#p08').freefocus move: 'right', targets: -> $('bogus')
+    expect($('#p08')).toBeFocused()
+
   describe "should move according to directional navigation hints", ->
 
     it "defined by css properties", ->

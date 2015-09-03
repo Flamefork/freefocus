@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.9.0
+jQuery.Freefocus 0.10.0
 
 Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -168,16 +168,18 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
 
     options = $.extend({}, $.freefocus.moveOptions, options);
 
-    if ($.freefocus.moves[options.move] === null)
+    if ($.freefocus.moves[options.move] === null) {
       throw new Error('Unknown move direction "' + options.move + '"');
-    if (!options.targets && !options.focusablesSelector)
-      throw new Error('Options should contain either focusablesSelector or targets');
-    if (options.targets && !(options.targets instanceof $))
-      throw new Error('Argument targets should be a jQuery object');
-    if (this.size() > 1)
+    }
+    if (!options.targets || !(options.targets instanceof $ || $.isFunction(options.targets))) {
+      throw new Error('Argument targets should be a jQuery object or function');
+    }
+    if (this.size() > 1) {
       throw new Error('Can\'t move from multiple elements');
-    if (!this.size())
+    }
+    if (!this.size()) {
       return this; // It's useful to be silent here
+    }
 
     if (options.debug) {
       clearDots();
@@ -219,22 +221,41 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
 
   */
 
+  function defaultTargets(options) {
+    var result;
+    if (!options.focusablesSelector) {
+      throw new Error('Options should contain either focusablesSelector or targets');
+    }
+    if (options.hintSelector) {
+      var context = options.ignoreContextForHints ? undefined : options.focusablesContext;
+      result = $(options.hintSelector, context).filter(options.focusablesSelector);
+    } else {
+      result = $(options.focusablesSelector, options.focusablesContext);
+    }
+    if (options.focusablesFilter) {
+      result = result.filter(options.focusablesFilter);
+    }
+    return result;
+  }
+
   $.freefocus.moveOptions = {
+    targets: defaultTargets,
     focusablesSelector: [
-                          'a[href]',
-                          'area[href]',
-                          'input:enabled',
-                          'select:enabled',
-                          'textarea:enabled',
-                          'button:enabled',
-                          'iframe',
-                          'object',
-                          'embed',
-                          '*[tabindex]',
-                          '*[contenteditable]'
-                        ].join(', '),
+      'a[href]',
+      'area[href]',
+      'input:enabled',
+      'select:enabled',
+      'textarea:enabled',
+      'button:enabled',
+      'iframe',
+      'object',
+      'embed',
+      '*[tabindex]',
+      '*[contenteditable]'
+    ].join(', '),
     focusablesFilter: ':visible',
     focusablesContext: undefined,
+    ignoreContextForHints: true,
     trigger: 'focus',
     preTrigger: false,
     debug: false,
@@ -245,6 +266,10 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     focusedSelector: ':focus',
     hoverFocus: false,
     throttle: false
+  };
+
+  $.freefocus.cacheOptions = {
+    targets: defaultTargets
   };
 
   $.freefocus.keys = {
@@ -292,32 +317,35 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
 
   function targetFromHints($el, options) {
     var hint = firstMatch($.freefocus.hintSources, function (source) {
-      hint = $.trim(source($el, options));
-      if (hint.length)
-        return hint;
+      return $.trim(source($el, options));
     });
 
-    if (!hint)
-      return;
+    if (!hint) {
+      return undefined;
+    }
+
+    if (hint === 'none') {
+      return $();
+    }
 
     // Fix Toshiba that removes "#" from the beginning and adds " ''" to the end
     hint = hint.replace(/^([^#].*) ''$/, '#$1');
 
     // Allow to set explicit order by enumerating selectors
-    return firstMatch(hint.split(';'), function (hintItem) {
-      if ($.trim(hintItem) === 'none')
-        return $();
+    return firstMatch(hint.split(/\s*;\s*/), function (hintSelector) {
+      if (!hintSelector) {
+        // A `hint` with a trailing `;` creates an empty hintSelector.
+        return undefined;
+      }
 
-      var targets = $(hintItem);
+      var targetFn = $.isFunction(options.targets) ? options.targets : defaultTargets;
 
-      if (options.focusablesSelector)
-        targets = targets.filter(options.focusablesSelector);
+      var targets = targetFn($.extend({}, options, {
+        hintSelector: hintSelector,
+        focusablesContext: options.focusablesContext
+      }));
 
-      if (options.focusablesFilter)
-        targets = targets.filter(options.focusablesFilter);
-
-      if (targets.length)
-        return targets;
+      return targets.length ? targets : undefined;
     });
   }
 
@@ -376,13 +404,9 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     var minDistance = Infinity;
     var $resultEl = null;
 
-    var targets;
-    if (options.targets) {
-      targets = options.targets;
-    } else {
-      targets = $(options.focusablesSelector, options.focusablesContext);
-      if (options.focusablesFilter)
-        targets = targets.filter(options.focusablesFilter);
+    var targets = options.targets;
+    if ($.isFunction(targets)) {
+      targets = targets(options);
     }
 
     targets.each(function () {
@@ -540,9 +564,9 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
   }
 
   function cacheFocusables(options) {
-    var targets = $(options.focusablesSelector, options.focusablesContext);
-    if (options.focusablesFilter)
-      targets = targets.filter(options.focusablesFilter);
+    options = $.extend({}, $.freefocus.cacheOptions, options);
+
+    var targets = options.targets(options);
     targets.each(function () {
       getElementBox($(this), true, true);
     });
