@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.10.1
+jQuery.Freefocus 0.10.2
 
 Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -190,8 +190,8 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     if ($.freefocus.moves[options.move] === null) {
       throw new Error('Unknown move direction "' + options.move + '"');
     }
-    if (!options.targets || !(options.targets instanceof $ || $.isFunction(options.targets))) {
-      throw new Error('Argument targets should be a jQuery object or function');
+    if (!($.isFunction(options.targets) || $.isArray(options.targets) || options.targets.jquery)) {
+      throw new Error('Argument targets should be a function, array, or jQuery object');
     }
 
     if (options.debug) {
@@ -585,9 +585,12 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
   function cacheFocusables(options) {
     options = $.extend({}, $.freefocus.cacheOptions, options);
 
-    var targets = options.targets(options);
-    targets.each(function () {
-      getElementBox(this, true, true);
+    var targets = options.targets;
+    if ($.isFunction(targets)) {
+      targets = targets(options);
+    }
+    $.each(targets, function (i, el) {
+      getElementBox(el, true, true);
     });
   }
 
