@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.10.0
+jQuery.Freefocus 0.10.1
 
 Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -138,7 +138,14 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
 
   $.fn.freefocus = function (options, navHints) {
     if (options === 'dimensions') {
-      var box = getElementBox(this, true, false);
+      if (!this.length) {
+        throw new Error('Can\'t get freefocus dimensions for empty jQuery object');
+      }
+      if (this.length > 1) {
+        throw new Error('Can\'t use freefocus on multiple element jQuery object');
+      }
+
+      var box = getElementBox(this[0], true, false);
       return {
         left: box.x1,
         top: box.y1,
@@ -148,7 +155,7 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     }
 
     if (options === 'moved') {
-      this.data('freefocus-dimensions', null);
+      this.removeData('freefocus-dimensions');
       return;
     }
 
@@ -166,6 +173,18 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
       return;
     }
 
+    if (!this.length) {
+      if (options.debug) {
+        console.warn('freefocus called on empty jQuery object');
+      }
+      // It's useful to be silent in this case
+      return this;
+    }
+    if (this.length > 1) {
+      throw new Error('Can\'t use freefocus on multiple element jQuery object');
+    }
+    var el = this[0];
+
     options = $.extend({}, $.freefocus.moveOptions, options);
 
     if ($.freefocus.moves[options.move] === null) {
@@ -174,45 +193,41 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     if (!options.targets || !(options.targets instanceof $ || $.isFunction(options.targets))) {
       throw new Error('Argument targets should be a jQuery object or function');
     }
-    if (this.size() > 1) {
-      throw new Error('Can\'t move from multiple elements');
-    }
-    if (!this.size()) {
-      return this; // It's useful to be silent here
-    }
 
     if (options.debug) {
       clearDots();
     }
 
-    updateFocusPoint(this, options.move, options.cache);
+    updateFocusPoint(el, options.move, options.cache);
 
-    var to = targetFromHints(this, options);
-    if (to) {
-      if (to.length > 1) {
+    var toEl;
+    var toEls = targetsFromHints(el, options);
+    if (toEls) {
+      if (toEls.length > 1) {
         // choose the best option from target set
-        to = targetWithMinDistance(this, $.extend({}, options, { targets: to }));
+        toEl = targetWithMinDistance(el, $.extend({}, options, { targets: toEls }));
       } else {
-        // do nothing, we either have the target (via hint, length === 1)
-        // or were explicitly said so ('none' hint, length === 0)
+        toEl = toEls[0];
       }
     } else {
-      to = targetWithMinDistance(this, options);
+      toEl = targetWithMinDistance(el, options);
     }
 
-    if (!to || !to.length)
-      return this; // It's useful to be silent here
+    if (!toEl) {
+      // It's useful to be silent in this case
+      return this;
+    }
 
-    moveFocusPoint(to, options.move, options.debug, options.cache);
+    moveFocusPoint(toEl, options.move, options.debug, options.cache);
 
     if (options.preTrigger) {
-      triggerEvent(to.get(0), options.preTrigger);
+      triggerEvent(toEl, options.preTrigger);
     }
     if (options.trigger) {
-      triggerEvent(to.get(0), options.trigger);
+      triggerEvent(toEl, options.trigger);
     }
 
-    return to;
+    return $(toEl);
   };
 
   /*
@@ -235,7 +250,7 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     if (options.focusablesFilter) {
       result = result.filter(options.focusablesFilter);
     }
-    return result;
+    return result.toArray();
   }
 
   $.freefocus.moveOptions = {
@@ -295,15 +310,16 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
   $.freefocus.focusPoint = {};
 
   $.freefocus.hintSources = [
-    function ($el, options) {
-      return $el.attr('data-nav-' + options.move);
+    function (el, options) {
+      return el.getAttribute('data-nav-' + options.move);
     },
-    function ($el, options) {
+    function (el, options) {
       var propName = 'nav' + (options.move.charAt(0).toUpperCase()) + (options.move.slice(1));
-      return $el.get(0).style[propName];
+      return el.style[propName];
     },
-    function ($el, options) {
-      return parseStyleString($el.attr('style') || '')['nav-' + options.move];
+    function (el, options) {
+      var style = $.trim(el.getAttribute('style'));
+      return style && parseStyleString(style)['nav-' + options.move];
     }
   ];
 
@@ -315,9 +331,9 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     }
   }
 
-  function targetFromHints($el, options) {
+  function targetsFromHints(el, options) {
     var hint = firstMatch($.freefocus.hintSources, function (source) {
-      return $.trim(source($el, options));
+      return $.trim(source(el, options));
     });
 
     if (!hint) {
@@ -325,7 +341,7 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     }
 
     if (hint === 'none') {
-      return $();
+      return [];
     }
 
     // Fix Toshiba that removes "#" from the beginning and adds " ''" to the end
@@ -359,14 +375,14 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     return result;
   }
 
-  function updateFocusPoint($el, direction, cache) {
-    var box = getElementBox($el, cache, cache);
+  function updateFocusPoint(el, direction, cache) {
+    var box = getElementBox(el, cache, cache);
     var fp = $.freefocus.focusPoint;
 
     // If the element was focused by freefocus,
     // thus we have valid current focus point
-    if (!$el.is(fp.$el)) {
-      fp.$el = $el;
+    if (el !== fp.el) {
+      fp.el = el;
       fp.box = {
         x: (box.x2 - box.x1) / 2,
         y: (box.y2 - box.y1) / 2
@@ -376,11 +392,11 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     fp.updatedInDirection.fwd = boxInDirection(box, direction).fwd2;
   }
 
-  function moveFocusPoint($el, direction, debug, cache) {
-    var box = getElementBox($el, cache, cache);
+  function moveFocusPoint(el, direction, debug, cache) {
+    var box = getElementBox(el, cache, cache);
     var fp = $.freefocus.focusPoint;
 
-    fp.$el = $el;
+    fp.el = el;
 
     var boxInDir = boxInDirection(box, direction);
     var movedInDirection = {
@@ -390,51 +406,51 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     fp.box = clientCoordsToBox(coordsFromDirection(movedInDirection, direction), box);
 
     if (debug) {
-      putDot(coordsFromDirection(movedInDirection, direction), '#00f', 'entry focus point for ' + $el.html());
+      putDot(coordsFromDirection(movedInDirection, direction), '#00f', 'entry focus point for ' + el.innerHTML);
     }
   }
 
-  function targetWithMinDistance($fromEl, options) {
-    var fromBox = boxInDirection(getElementBox($fromEl, options.cache, options.cache), options.move);
+  function targetWithMinDistance(fromEl, options) {
+    var fromBox = boxInDirection(getElementBox(fromEl, options.cache, options.cache), options.move);
 
     if (options.debug) {
-      putDot(coordsFromDirection($.freefocus.focusPoint.updatedInDirection, options.move), '#0f0', 'exit focus point for ' + $fromEl.html());
+      putDot(coordsFromDirection($.freefocus.focusPoint.updatedInDirection, options.move), '#0f0', 'exit focus point for ' + fromEl.innerHTML);
     }
-
-    var minDistance = Infinity;
-    var $resultEl = null;
 
     var targets = options.targets;
     if ($.isFunction(targets)) {
       targets = targets(options);
     }
 
-    targets.each(function () {
-      var $toEl = $(this);
+    var minDistance = Infinity;
+    var resultEl = null;
 
+    $.each(targets, function (i, toEl) {
       // Skip currently focused element
-      if ($toEl.is($fromEl))
+      if (toEl === fromEl) {
         return;
+      }
 
-      var toBox = boxInDirection(getElementBox($toEl, options.cache, options.cache), options.move);
+      var toBox = boxInDirection(getElementBox(toEl, options.cache, options.cache), options.move);
 
       // Skip elements that are not in the direction of movement
-      if (toBox.fwd1 < fromBox.fwd2)
+      if (toBox.fwd1 < fromBox.fwd2) {
         return;
+      }
 
       var dist = distance(fromBox, toBox);
 
       if (dist < options.maxDistance && dist < minDistance) {
-        $resultEl = $toEl;
+        resultEl = toEl;
         minDistance = dist;
       }
     });
 
-    if (options.debug && $resultEl) {
-      console.log('Distance from', $fromEl.get(0), 'to', $resultEl.get(0), 'is', minDistance);
+    if (options.debug && resultEl) {
+      console.log('Distance from', fromEl, 'to', resultEl, 'is', minDistance);
     }
 
-    return $resultEl;
+    return resultEl;
   }
 
   function distance(fromBox, toBox) {
@@ -485,25 +501,28 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     return result;
   }
 
-  function computeElementBox($el) {
-    var offset = $el.offset();
+  function computeElementBox(el) {
+    var rect = el.getBoundingClientRect();
     return {
-      x1: offset.left,
-      y1: offset.top,
-      x2: offset.left + $el.innerWidth(),
-      y2: offset.top + $el.innerHeight()
+      x1: rect.left,
+      y1: rect.top,
+      x2: rect.right,
+      y2: rect.bottom
     };
   }
 
-  function getElementBox($el, readCache, writeCache) {
+  function getElementBox(el, readCache, writeCache) {
     var box;
 
-    if (readCache)
-      box = $el.data('freefocus-dimensions');
-    if (!box)
-      box = computeElementBox($el);
-    if (writeCache)
-      $el.data('freefocus-dimensions', box);
+    if (readCache) {
+      box = $.data(el, 'freefocus-dimensions');
+    }
+    if (!box) {
+      box = computeElementBox(el);
+    }
+    if (writeCache) {
+      $.data(el, 'freefocus-dimensions', box);
+    }
 
     return box;
   }
@@ -568,7 +587,7 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
 
     var targets = options.targets(options);
     targets.each(function () {
-      getElementBox($(this), true, true);
+      getElementBox(this, true, true);
     });
   }
 

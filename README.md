@@ -122,11 +122,12 @@ Hints could be specified using
 
 - HTML tags `style` attribute: `nav-left`, `nav-right`, `nav-up`, `nav-down`
 - JavaScript counterparts to CSS properties: `navLeft`, `navRight`, `navUp`, `navDown`
-- FreeFocus API over jQuery data: `$.fn.freefocus('nav')`
 - data attributes: `<button data-nav-left="selector">`
+- FreeFocus API on top of data attributes: `$.fn.freefocus('nav')`
 
 ## Changelog
 
+- 0.10.1 Removed lots of jQuery calls from code, speedup is imminent
 - 0.10.0 Supported `targets` option to be a function that returns focusable elements instead of using `focusablesSelector` and `focusablesFilter`
 - 0.9.0 Freefocus returns focus target (or self if no target found) instead of self
 - 0.8.8 Optimized custom event triggering
