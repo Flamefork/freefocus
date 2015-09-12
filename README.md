@@ -127,6 +127,7 @@ Hints could be specified using
 
 ## Changelog
 
+- 0.10.3 Freefocus now logs errors to console and uses safe fallback instead of throwing errors 
 - 0.10.2 Fixed `freefocus('cache')`
 - 0.10.1 Removed lots of jQuery calls from code, speedup is imminent
 - 0.10.0 Supported `targets` option to be a function that returns focusable elements instead of using `focusablesSelector` and `focusablesFilter`

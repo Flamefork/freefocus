@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.10.2
+jQuery.Freefocus 0.10.3
 
 Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -74,13 +74,17 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     });
 
     if (setupOptions.hoverFocus) {
-      if (!moveOptions.focusablesSelector)
-        throw new Error('focusablesSelector is required for hoverFocus');
+      if (!moveOptions.focusablesSelector) {
+        console.error('focusablesSelector is required for hoverFocus');
+        moveOptions.focusablesSelector = 'zzz';
+      }
+
       addHandler('mouseenter', moveOptions.focusablesSelector, function () {
         var trigger = (moveOptions || {}).trigger || $.freefocus.moveOptions.trigger;
         var target = $(this);
-        if (setupOptions.focusablesFilter)
+        if (setupOptions.focusablesFilter) {
           target = target.filter(setupOptions.focusablesFilter);
+        }
         return target.trigger(trigger);
       });
     }
@@ -139,10 +143,12 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
   $.fn.freefocus = function (options, navHints) {
     if (options === 'dimensions') {
       if (!this.length) {
-        throw new Error('Can\'t get freefocus dimensions for empty jQuery object');
+        console.error('Can\'t get freefocus dimensions for empty jQuery object');
+        return { left: 0, top: 0, width: 0, height: 0 };
       }
       if (this.length > 1) {
-        throw new Error('Can\'t use freefocus on multiple element jQuery object');
+        console.error('Can\'t use freefocus on multiple element jQuery object');
+        // First element will be used
       }
 
       var box = getElementBox(this[0], true, false);
@@ -181,17 +187,19 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
       return this;
     }
     if (this.length > 1) {
-      throw new Error('Can\'t use freefocus on multiple element jQuery object');
+      console.error('Can\'t use freefocus on multiple element jQuery object');
+      // First element will be used
     }
     var el = this[0];
 
     options = $.extend({}, $.freefocus.moveOptions, options);
 
     if ($.freefocus.moves[options.move] === null) {
-      throw new Error('Unknown move direction "' + options.move + '"');
+      console.error('Unknown move direction "' + options.move + '"');
+      return this;
     }
     if (!($.isFunction(options.targets) || $.isArray(options.targets) || options.targets.jquery)) {
-      throw new Error('Argument targets should be a function, array, or jQuery object');
+      console.warn('Argument targets should be a function, array, or jQuery object');
     }
 
     if (options.debug) {
@@ -239,7 +247,8 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
   function defaultTargets(options) {
     var result;
     if (!options.focusablesSelector) {
-      throw new Error('Options should contain either focusablesSelector or targets');
+      console.error('Options should contain either focusablesSelector or targets');
+      return [];
     }
     if (options.hintSelector) {
       var context = options.ignoreContextForHints ? undefined : options.focusablesContext;
