@@ -12,6 +12,7 @@ module.exports = (config) ->
     files: [
       "bower_components/jquery/jquery.js",
       "bower_components/jasmine-jquery/lib/jasmine-jquery.js",
+      "freefocus.js",
       "jquery.freefocus.js",
       "test/helpers.js",
       "test/specs.coffee",
