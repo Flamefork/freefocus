@@ -141,6 +141,7 @@ Hints could be specified using
 
 ## Changelog
 
+- 0.11.1 More consistent core API
 - 0.11.0 Extracted the jQuery-less core into `freefocus.js`
 - 0.10.3 Freefocus now logs errors to console and uses safe fallback instead of throwing errors 
 - 0.10.2 Fixed `freefocus('cache')`

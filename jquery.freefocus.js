@@ -1,6 +1,6 @@
 /*
 
-jQuery.Freefocus 0.11.0
+jQuery.Freefocus 0.11.1
 
 Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -54,7 +54,9 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
       if ($.isFunction(targets)) {
         targets = targets(cacheOptions);
       }
-      freefocus.populateDimensionsCache(targets);
+      for (var i = 0, len = targets.length; i < len; i++) {
+        freefocus.populateDimensionsCache(targets[i]);
+      }
       return;
     }
 
@@ -163,7 +165,9 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     }
 
     if (options === 'moved') {
-      freefocus.invalidateDimensionsCache(this);
+      this.each(function () {
+        freefocus.invalidateDimensionsCache(this);
+      });
       return;
     }
 

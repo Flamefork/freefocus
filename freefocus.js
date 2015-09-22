@@ -1,6 +1,6 @@
 /*
 
-Freefocus 0.11.0
+Freefocus 0.11.1
 
 Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
 
@@ -27,6 +27,11 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
   };
 
   function getDimensions(element) {
+    if (!element) {
+      console.error('Can\'t get freefocus dimensions for nothing');
+      return { left: 0, top: 0, width: 0, height: 0 };
+    }
+
     var box = getElementBox(element, true, false);
     return {
       left: box.x1,
@@ -36,25 +41,37 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     };
   }
 
-  function populateDimensionsCache(elements) {
-    for (var i = 0, len = elements.length; i < len; i++) {
-      getElementBox(elements[i], true, true);
+  function populateDimensionsCache(element) {
+    if (!element) {
+      console.error('Can\'t populate freefocus cache for nothing');
+      return;
     }
+    getElementBox(element, true, true);
   }
 
-  function invalidateDimensionsCache(elements) {
-    for (var i = 0, len = elements.length; i < len; i++) {
-      delete elements[i].freefocusDimensions;
+  function invalidateDimensionsCache(element) {
+    if (!element) {
+      console.error('Can\'t invalidate freefocus cache for nothing');
+      return;
     }
+    delete element.freefocusDimensions;
   }
 
   function clearHint(element) {
+    if (!element) {
+      console.error('Can\'t clear freefocus hint for nothing');
+      return;
+    }
     for (var move in directions) {
       element.removeAttribute('data-nav-' + move);
     }
   }
 
   function setHint(element, hint) {
+    if (!element) {
+      console.error('Can\'t set freefocus hints for nothing');
+      return;
+    }
     for (var move in hint) {
       element.setAttribute('data-nav-' + move, hint[move]);
     }
@@ -63,8 +80,18 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
   function move(fromElement, direction, candidatesFn) {
     var target;
 
+    if (!fromElement) {
+      console.error('Can\'t move freefocus from nothing');
+      return target;
+    }
+
     if (!directions[direction]) {
-      console.error('Unknown direction "' + direction + '"');
+      console.error('Unknown freefocus direction "' + direction + '"');
+      return target;
+    }
+
+    if (!candidatesFn) {
+      console.error('Can\'t move freefocus without candidates function');
       return target;
     }
 
