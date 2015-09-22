@@ -3,7 +3,11 @@ module.exports = (grunt) ->
 
   grunt.initConfig
     jshint:
-      all: ["jquery.freefocus.js", "test/*.js"]
+      all: [
+        "freefocus.js",
+        "jquery.freefocus.js",
+        "test/*.js"
+      ]
       options:
         jshintrc: '.jshintrc'
 
@@ -15,9 +19,17 @@ module.exports = (grunt) ->
         singleRun: true
 
     uglify:
-      dist:
+      vanilla:
         files:
-          "jquery.freefocus.min.js": ["jquery.freefocus.js"]
+          "freefocus.min.js": [
+            "freefocus.js"
+          ]
+      jquery:
+        files:
+          "jquery.freefocus.min.js": [
+            "freefocus.js",
+            "jquery.freefocus.js"
+          ]
 
   grunt.registerTask "test", [
     "jshint",

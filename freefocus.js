@@ -1,3 +1,11 @@
+/*
+
+Freefocus 0.11.0
+
+Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
+
+*/
+
 (function () {
   'use strict';
 

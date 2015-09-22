@@ -1,8 +1,11 @@
 {
   "name": "freefocus",
-  "version": "0.10.3",
+  "version": "0.11.0",
   "description": "FreeFocus",
   "keywords": [
+    "focus",
+    "wicd",
+    "spatial",
     "jquery-plugin"
   ],
   "homepage": "https://github.com/Flamefork/freefocus",

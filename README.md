@@ -1,4 +1,4 @@
-# jQuery.FreeFocus
+# FreeFocus
 
 "Visual", no-hassle navigation in HTML using IR remote / arrow keys.
 
@@ -22,8 +22,16 @@ Uses [W3C WICD Current Focus Point Algorithm](http://www.w3.org/TR/WICD/#current
 
 ## Download
 
-- [Minified version](https://raw.github.com/Flamefork/freefocus/master/jquery.freefocus.min.js)
-- [Development version](https://raw.github.com/Flamefork/freefocus/master/jquery.freefocus.js)
+VanillaJS core:
+
+- [Core](https://raw.github.com/Flamefork/freefocus/master/freefocus.js)
+- [Minified version](https://raw.github.com/Flamefork/freefocus/master/freefocus.min.js)
+
+jQuery plugin:
+
+- [Core (plugin dependency)](https://raw.github.com/Flamefork/freefocus/master/freefocus.js)
+- [Plugin](https://raw.github.com/Flamefork/freefocus/master/jquery.freefocus.js)
+- [Minified merged version](https://raw.github.com/Flamefork/freefocus/master/jquery.freefocus.min.js)
 
 ## Getting Started
 
@@ -37,7 +45,13 @@ $(function() {
 </script>
 ```
 
-## Documentation
+That's it, now you have it all set up.
+
+## Core Documentation
+
+TBD, sorry. See [Source](https://raw.github.com/Flamefork/freefocus/master/freefocus.js) for now.
+
+## jQuery Plugin Documentation
 
 ### `$.freefocus({options...}, {moveOptions...})`
 
@@ -127,6 +141,7 @@ Hints could be specified using
 
 ## Changelog
 
+- 0.11.0 Extracted the jQuery-less core into `freefocus.js`
 - 0.10.3 Freefocus now logs errors to console and uses safe fallback instead of throwing errors 
 - 0.10.2 Fixed `freefocus('cache')`
 - 0.10.1 Removed lots of jQuery calls from code, speedup is imminent
