@@ -49,7 +49,7 @@ That's it, now you have it all set up.
 
 ## Core Documentation
 
-TBD, sorry. See [Source](https://raw.github.com/Flamefork/freefocus/master/freefocus.js) for now.
+TBD, sorry. See [Source](https://github.com/Flamefork/freefocus/blob/master/freefocus.js) for now.
 
 ## jQuery Plugin Documentation
 
