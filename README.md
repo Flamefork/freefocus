@@ -141,6 +141,7 @@ Hints could be specified using
 
 ## Changelog
 
+- 0.11.2 Added overwrite argument to `setHint` (`true` by default) 
 - 0.11.1 More consistent core API
 - 0.11.0 Extracted the jQuery-less core into `freefocus.js`
 - 0.10.3 Freefocus now logs errors to console and uses safe fallback instead of throwing errors 

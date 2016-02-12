@@ -1,8 +1,8 @@
 /*
 
-Freefocus 0.11.1
+Freefocus 0.11.2
 
-Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
+Copyright (c) 2013-2016 Ilia Ablamonov. Licensed under the MIT license.
 
 */
 
@@ -67,13 +67,15 @@ Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
     }
   }
 
-  function setHint(element, hint) {
+  function setHint(element, hint, overwrite) {
     if (!element) {
       console.error('Can\'t set freefocus hints for nothing');
       return;
     }
     for (var move in hint) {
-      element.setAttribute('data-nav-' + move, hint[move]);
+      if (overwrite !== false || !element.getAttribute('data-nav-' + move)) {
+        element.setAttribute('data-nav-' + move, hint[move]);
+      }
     }
   }
 

@@ -1,8 +1,8 @@
 /*
 
-jQuery.Freefocus 0.11.1
+jQuery.Freefocus 0.11.2
 
-Copyright (c) 2013-2015 Ilia Ablamonov. Licensed under the MIT license.
+Copyright (c) 2013-2016 Ilia Ablamonov. Licensed under the MIT license.
 
 */
 
