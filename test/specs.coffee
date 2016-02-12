@@ -50,13 +50,13 @@ describe "$.fn.freefocus", ->
 
   it "should return the target", ->
     target = $('#p09').freefocus move: 'left', targets: $('.grid>div')
-    expect(target).toBe($('#p08'))
+    expect(target).toEqual('#p08')
     target = $('#p09').freefocus move: 'right', targets: $('.grid>div')
-    expect(target).toBe($('#p21'))
+    expect(target).toEqual('#p21')
 
   it "should return self if no target found", ->
     target = $('#p09').freefocus move: 'right', targets: $('bogus')
-    expect(target).toBe($('#p09'))
+    expect(target).toEqual('#p09')
 
   it "should use targets function", ->
     $('#p09').freefocus move: 'left', targets: -> $('.grid>div')

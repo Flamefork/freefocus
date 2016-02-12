@@ -5,6 +5,6 @@
   "dependencies": {},
   "devDependencies": {
     "jquery": "~2.0.3",
-    "jasmine-jquery": "~1.5.8"
+    "jasmine-jquery": "~2.1.1"
   }
 }
